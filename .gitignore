@@ -1,0 +1,3 @@
+# Local-only: preview config and the pre-split backup copy
+.claude/
+_backup-single-page/
