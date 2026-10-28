@@ -128,12 +128,14 @@ document.querySelectorAll('.year').forEach(function(el){
     '.about-text p',
     'h2',
     '.section-lede',
+    '.sub-head',
     '.expertise-group h3',
     '.expertise-list span',
     '.expertise-list a',
     '.timeline-when',
     '.timeline-role',
     '.timeline-org',
+    '.timeline-story',
     '.case-id',
     '.case-title',
     '.contact-buttons a',
@@ -173,16 +175,6 @@ document.querySelectorAll('.year').forEach(function(el){
     // No IntersectionObserver support: just reveal everything as plain text.
     elements.forEach(function(el){ el.style.opacity = '1'; });
   }
-
-  // Project descriptions re-type every time their dropdown opens
-  document.querySelectorAll('.case').forEach(function(details){
-    details.addEventListener('toggle', function(){
-      if(details.open){
-        var body = details.querySelector('.case-body');
-        if(body) typeElement(body);
-      }
-    });
-  });
 })();
 
 (function(){

@@ -54,9 +54,9 @@ a{color:inherit;}
 }
 
 .wrap{
-  max-width:760px;
+  max-width:1120px;
   margin:0 auto;
-  padding:0 28px;
+  padding:0 40px;
   position:relative;
   z-index:2;
 }
@@ -70,7 +70,9 @@ nav{
   border-bottom:1px solid var(--line);
   z-index:20;
 }
+/* nav spans the full window so the logo sits in the top-left corner */
 nav .wrap{
+  max-width:none;
   display:flex;
   justify-content:space-between;
   align-items:center;
@@ -133,16 +135,17 @@ nav .wrap{
 .js .about-text p,
 .js h2,
 .js .section-lede,
+.js .sub-head,
 .js .expertise-group h3,
 .js .expertise-list span,
 .js .expertise-list a,
 .js .timeline-when,
 .js .timeline-role,
 .js .timeline-org,
+.js .timeline-story,
 .js .case-id,
 .js .case-title,
 .js .contact-buttons a,
-.js .case-body,
 .js footer .wrap{
   opacity:0;
 }
@@ -153,16 +156,17 @@ nav .wrap{
   .js .about-text p,
   .js h2,
   .js .section-lede,
+  .js .sub-head,
   .js .expertise-group h3,
   .js .expertise-list span,
   .js .expertise-list a,
   .js .timeline-when,
   .js .timeline-role,
   .js .timeline-org,
+  .js .timeline-story,
   .js .case-id,
   .js .case-title,
   .js .contact-buttons a,
-  .js .case-body,
   .js footer .wrap{
     opacity:1 !important;
   }
@@ -173,6 +177,36 @@ header.hero{
   padding:88px 0 56px;
   border-bottom:1px solid var(--line);
 }
+/* text on the left, headshot on the right (stacks on smaller screens) */
+.hero-grid{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 320px;
+  gap:64px;
+  align-items:center;
+}
+.hero-photo{
+  grid-column:2;
+  grid-row:1;
+  position:relative;
+  border:1px solid var(--accent-soft);
+  box-shadow:0 0 28px rgba(255,0,255,0.18);
+}
+.hero-photo img{
+  display:block;
+  width:100%;
+  height:auto;
+}
+/* HUD-style corner brackets */
+.hero-photo::before, .hero-photo::after{
+  content:"";
+  position:absolute;
+  width:18px;
+  height:18px;
+  border:2px solid var(--accent);
+}
+.hero-photo::before{top:-7px; left:-7px; border-right:none; border-bottom:none;}
+.hero-photo::after{bottom:-7px; right:-7px; border-left:none; border-top:none;}
+.hero-text{grid-column:1; grid-row:1;}
 .status-line{
   display:flex;
   align-items:center;
@@ -211,13 +245,13 @@ h1{
   margin-top:16px;
   font-size:18px;
   color:var(--ink-dim);
-  max-width:520px;
+  max-width:600px;
 }
 .hero-lede{
   margin-top:22px;
   font-size:15.5px;
   color:var(--ink-dim);
-  max-width:520px;
+  max-width:600px;
   line-height:1.7;
 }
 .hero-meta{
@@ -247,7 +281,7 @@ section{
   border-bottom:1px solid var(--line);
 }
 section:last-of-type{border-bottom:none;}
-/* the main section on Journey / Expertise / Projects / Contact gets the
+/* the main section on Journey / Projects / Contact gets the
    same top breathing room as the home page hero */
 section.page-section{padding-top:88px;}
 .section-head{
@@ -274,14 +308,26 @@ h2{
   max-width:600px;
   margin-bottom:28px;
 }
+/* smaller headings inside a page, e.g. Toolkit / Timeline on Journey */
+.sub-head{
+  font-family:'IBM Plex Mono', monospace;
+  font-size:13px;
+  font-weight:500;
+  color:var(--ink-faint);
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  margin:56px 0 24px;
+}
+.section-head + .sub-head{margin-top:0;}
 
 /* ---------- About ---------- */
 .about-text{
   font-size:16px;
   color:var(--ink-dim);
-  max-width:600px;
+  columns:2;
+  column-gap:56px;
 }
-.about-text p{margin-bottom:16px;}
+.about-text p{margin-bottom:16px; break-inside:avoid;}
 .about-text p:last-child{margin-bottom:0;}
 .about-text strong{color:var(--ink); font-weight:500;}
 .gold{color:#D4AF37;}
@@ -344,6 +390,23 @@ h2{
   margin-top:3px;
 }
 .timeline-item:hover .timeline-role{color:var(--accent);}
+/* desktop: dates/role on the left, the story on the right */
+.timeline-item{
+  display:grid;
+  grid-template-columns:240px minmax(0,1fr);
+  gap:8px 48px;
+}
+.timeline-story{
+  font-size:15px;
+  color:var(--ink-dim);
+  line-height:1.7;
+  max-width:720px;
+}
+.timeline-story p{margin-bottom:12px;}
+.timeline-story p:last-child{margin-bottom:0;}
+.timeline-story strong{color:var(--ink); font-weight:500;}
+.timeline-story a, .post-body a{color:var(--accent); text-decoration:none; border-bottom:1px solid var(--accent-soft);}
+.timeline-story a:hover, .post-body a:hover{border-color:var(--accent);}
 @media (prefers-reduced-motion: reduce){
   .timeline-item.current .timeline-node{animation:none;}
 }
@@ -351,7 +414,7 @@ h2{
 /* ---------- Expertise ---------- */
 .expertise-grid{
   display:grid;
-  grid-template-columns:1fr 1fr;
+  grid-template-columns:repeat(4, minmax(0,1fr));
   gap:28px 40px;
 }
 .expertise-group h3{
@@ -382,49 +445,82 @@ h2{
   text-shadow:0 0 10px var(--accent-soft);
 }
 
-/* ---------- Projects (accordion) ---------- */
-.case{
-  border-top:1px solid var(--line);
-}
-.case summary{
-  list-style:none;
-  cursor:pointer;
-  padding:20px 0;
+/* ---------- Projects index (cards) ---------- */
+.case-grid{
   display:grid;
-  grid-template-columns:100px 1fr 20px;
+  grid-template-columns:1fr 1fr;
   gap:20px;
-  align-items:start;
 }
-.case summary::-webkit-details-marker{display:none;}
+.case-card{
+  display:flex;
+  flex-direction:column;
+  padding:24px;
+  background:rgba(10,10,10,0.85);
+  border:1px solid var(--line-glow);
+  text-decoration:none;
+  transition:border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.case-card:hover, .case-card:focus-visible{
+  border-color:var(--accent);
+  box-shadow:0 0 18px rgba(255,0,255,0.18);
+}
 .case-id{
   font-family:'IBM Plex Mono', monospace;
   font-size:12px;
   color:var(--accent);
-  padding-top:3px;
 }
 .case-title{
-  font-size:16px;
+  font-size:17px;
   color:var(--ink);
   font-weight:500;
+  margin-top:10px;
 }
-.case-chevron{
-  font-family:'IBM Plex Mono', monospace;
-  color:var(--ink-faint);
-  padding-top:2px;
-  transition:transform 0.2s ease, color 0.2s ease;
-}
-.case[open] .case-chevron{
-  transform:rotate(90deg);
-  color:var(--accent);
-}
-.case summary:hover .case-title{color:var(--accent);}
-.case summary:hover .case-chevron{color:var(--accent);}
-.case-body{
+.case-card:hover .case-title{color:var(--accent);}
+.case-summary{
   font-size:14.5px;
   color:var(--ink-dim);
   line-height:1.65;
-  padding:0 20px 22px 120px;
+  margin-top:10px;
+  flex:1;
 }
+.case-more{
+  font-family:'IBM Plex Mono', monospace;
+  font-size:12px;
+  color:var(--ink-faint);
+  margin-top:18px;
+}
+.case-card:hover .case-more{color:var(--accent);}
+
+/* ---------- Project write-up pages ---------- */
+.post{max-width:760px;}
+.post-back{
+  display:inline-block;
+  font-family:'IBM Plex Mono', monospace;
+  font-size:12.5px;
+  color:var(--ink-dim);
+  text-decoration:none;
+  margin-bottom:28px;
+}
+.post-back:hover{color:var(--accent);}
+.post-meta{
+  font-family:'IBM Plex Mono', monospace;
+  font-size:12px;
+  color:var(--ink-faint);
+  margin:-16px 0 40px;
+}
+.post-body{
+  font-size:16px;
+  color:var(--ink-dim);
+  line-height:1.75;
+}
+.post-body p{margin-bottom:16px;}
+.post-body ul{margin:0 0 16px 20px;}
+.post-body li{margin-bottom:6px;}
+.post-body strong{color:var(--ink); font-weight:500;}
+.post-body .sub-head{margin-top:40px;}
+.post-body .sub-head:first-child{margin-top:0;}
+.post-body code{font-family:'IBM Plex Mono', monospace; font-size:0.88em; color:var(--ink);}
+.post .section-head{gap:20px;}
 
 /* ---------- Buttons (Contact + login page) ---------- */
 .contact-buttons{
@@ -469,16 +565,28 @@ footer .wrap{
   color:inherit;
 }
 
+/* tablets and small laptops: stack the hero, fewer columns */
+@media (max-width:900px){
+  .hero-grid{grid-template-columns:1fr; gap:32px;}
+  .hero-photo{grid-column:1; width:200px;}
+  .hero-text{grid-row:2;}
+  .about-text{columns:1;}
+  .about-text p{max-width:640px;}
+  .expertise-grid{grid-template-columns:1fr 1fr;}
+  .timeline-item{grid-template-columns:1fr;}
+  .case-grid{grid-template-columns:1fr;}
+}
+
 @media (max-width:640px){
   .wrap{padding:0 20px;}
+  .hero-photo{width:150px;}
   h1{font-size:36px;}
   header.hero{padding-top:56px;}
   section.page-section{padding-top:56px;}
   .expertise-grid{grid-template-columns:1fr;}
   .timeline{padding-left:24px;}
   .timeline-node{left:-24px;}
-  .case summary{grid-template-columns:70px 1fr 16px; gap:12px;}
-  .case-body{padding-left:82px;}
+  .case-card{padding:20px;}
   nav .wrap{
     flex-wrap:wrap;
     height:auto;

@@ -13,8 +13,8 @@
 
 <!--
   HOW THE SITE IS ORGANIZED:
-  Each nav tab is its own page: index.html (About), journey.html,
-  expertise.html, projects.html, contact.html. All of them share
+  Each nav tab is its own page: index.html (About), journey.html
+  (toolkit + timeline), projects.html, contact.html. All of them share
   style.css (looks) and site.js (animations), so a change there
   applies everywhere.
 
@@ -40,7 +40,6 @@
     <div class="tabs" id="tabs">
       <a href="index.html" aria-current="page">About</a>
       <a href="journey.html">Journey</a>
-      <a href="expertise.html">Expertise</a>
       <a href="projects.html">Projects</a>
       <a href="contact.html">Contact</a>
       <div class="tab-indicator" id="tab-indicator"></div>
@@ -50,7 +49,12 @@
 
 <main>
 <header class="hero">
-  <div class="wrap">
+  <div class="wrap hero-grid">
+    <!-- To swap the photo, replace headshot-web.jpg (keep it around 700px wide so it loads fast) -->
+    <figure class="hero-photo">
+      <img src="headshot-web.jpg" alt="Muhammad Khas" width="700" height="981">
+    </figure>
+    <div class="hero-text">
     <div class="status-line">
       <span class="status-dot"></span>
       <span>Triage Security Engineer 1 — Arctic Wolf</span>
@@ -71,6 +75,7 @@
         <span class="label">EXPERIENCE</span>
         <span class="value">7 years, Security &amp; IT</span>
       </div>
+    </div>
     </div>
   </div>
 </header>

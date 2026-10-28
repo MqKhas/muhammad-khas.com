@@ -19,7 +19,6 @@
     <div class="tabs" id="tabs">
       <a href="index.html">About</a>
       <a href="journey.html" aria-current="page">Journey</a>
-      <a href="expertise.html">Expertise</a>
       <a href="projects.html">Projects</a>
       <a href="contact.html">Contact</a>
       <div class="tab-indicator" id="tab-indicator"></div>
@@ -34,44 +33,140 @@
       <h2>Journey</h2>
       <span class="section-tag">02</span>
     </div>
+
+    <h3 class="sub-head">Toolkit</h3>
+    <!--
+      HOW TO ADD A NEW SKILL TAG:
+      Find the right .expertise-group below and add a line inside its
+      .expertise-list. Use a <span> for a plain tag, or an <a> (with
+      target="_blank" rel="noopener noreferrer") if it should link out
+      to documentation, like the Frameworks group does.
+
+      <span>New skill name</span>
+    -->
+    <!--
+      HOW TO ADD A WHOLE NEW CATEGORY:
+      Copy the block below, remove the comment markers, and paste it as
+      a new .expertise-group anywhere inside .expertise-grid.
+
+      <div class="expertise-group">
+        <h3>Category name</h3>
+        <div class="expertise-list">
+          <span>Skill one</span>
+          <span>Skill two</span>
+        </div>
+      </div>
+    -->
+    <div class="expertise-grid">
+      <div class="expertise-group">
+        <h3>Detection &amp; Response</h3>
+        <div class="expertise-list">
+          <span>Alert triage</span>
+          <span>Incident response</span>
+          <span>Threat containment</span>
+          <span>OSINT investigation</span>
+          <span>Packet analysis</span>
+        </div>
+      </div>
+      <div class="expertise-group">
+        <h3>Tooling</h3>
+        <div class="expertise-list">
+          <span>Elastic / Kibana</span>
+          <span>Microsoft Defender for Endpoint</span>
+          <span>Active Directory</span>
+          <span>Jump Software / CLI</span>
+        </div>
+      </div>
+      <div class="expertise-group">
+        <h3>Cloud &amp; Infrastructure</h3>
+        <div class="expertise-list">
+          <span>AWS</span>
+          <span>Azure</span>
+          <span>Unix / Linux</span>
+          <span>Python</span>
+        </div>
+      </div>
+      <div class="expertise-group">
+        <h3>Frameworks</h3>
+        <div class="expertise-list">
+          <a href="https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final" target="_blank" rel="noopener noreferrer">NIST 800-53</a>
+          <a href="https://attack.mitre.org/" target="_blank" rel="noopener noreferrer">MITRE ATT&amp;CK</a>
+          <a href="https://owasp.org/www-project-top-ten/" target="_blank" rel="noopener noreferrer">OWASP Top 10</a>
+          <a href="https://public.cyber.mil/stigs/" target="_blank" rel="noopener noreferrer">DISA STIG</a>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="sub-head">Timeline</h3>
     <div class="timeline">
       <!--
         HOW TO ADD A NEW JOURNEY ENTRY:
-        Copy the block below, remove the comment markers, fill in your dates/role/org,
-        and paste it as the FIRST .timeline-item inside .timeline (most recent goes on top).
+        Copy the block below, remove the comment markers, fill in your dates/role/org
+        and a few short paragraphs about what you did, and paste it as the FIRST
+        .timeline-item inside .timeline (most recent goes on top).
         If this new entry is your current role, add class="current" to timeline-item
         and remove "current" from whichever entry used to be the top one.
 
         <div class="timeline-item current">
           <div class="timeline-node"></div>
-          <div class="timeline-when">YYYY — Present</div>
-          <div class="timeline-role">Job Title</div>
-          <div class="timeline-org">Company Name</div>
+          <div class="timeline-meta">
+            <div class="timeline-when">YYYY — Present</div>
+            <div class="timeline-role">Job Title</div>
+            <div class="timeline-org">Company Name</div>
+          </div>
+          <div class="timeline-story">
+            <p>What the job was and what you did.</p>
+            <p>Something you're proud of.</p>
+          </div>
         </div>
       -->
       <div class="timeline-item current">
         <div class="timeline-node"></div>
-        <div class="timeline-when">2024 — Present</div>
-        <div class="timeline-role">Triage Security Engineer 1</div>
-        <div class="timeline-org">Arctic Wolf Networks</div>
+        <div class="timeline-meta">
+          <div class="timeline-when">2024 — Present</div>
+          <div class="timeline-role">Triage Security Engineer 1</div>
+          <div class="timeline-org">Arctic Wolf Networks</div>
+        </div>
+        <div class="timeline-story">
+          <p>I investigate endpoint, network, and identity alerts (malicious URLs, account takeovers, breaches) over the phone and by ticket. When something is live, I contain the device and get it to Tier 3 fast enough to limit what an attacker can do.</p>
+          <p>One I'm proud of: a teammate had triaged an anomalous sign-in from a low-prevalence hosting provider as a medium. Looking at the activity around it, I saw RCL activity, MFA modifications, and anomalous token use. I raised it to <strong>high</strong>, submitted a callout, and contained the device. That's a bold call for a Tier 1, and when Tier 3 joined the ticket they first read it as a medium too. I held my ground, the activity kept coming, and we reached the customer. They wrote back confirming the user was compromised and thanking us for stopping it.</p>
+          <p>When I see the same gap causing repeat problems, I push for a real fix: an account-takeover alerting bug, a risky button on the triage dashboard, and a metric that discouraged teamwork (see <a href="projects.html">Projects</a>). I'm also the go-to person for over half of our Tier 1 analysts and interns, and I received Arctic Wolf's peer-nominated <span class="gold">Golden Wolf</span> award for leading our cultural events and lifting team morale.</p>
+        </div>
       </div>
       <div class="timeline-item">
         <div class="timeline-node"></div>
-        <div class="timeline-when">2022 — 2024</div>
-        <div class="timeline-role">Security Analyst</div>
-        <div class="timeline-org">Bridgewater Bank</div>
+        <div class="timeline-meta">
+          <div class="timeline-when">2022 — 2024</div>
+          <div class="timeline-role">Security Analyst</div>
+          <div class="timeline-org">Bridgewater Bank</div>
+        </div>
+        <div class="timeline-story">
+          <p>At a bank, speed and accuracy both matter. I led incident response and containment in Azure under strict SLAs: removing devices remotely, securely wiping data, running vulnerability scans, and working investigations across teams to close the exposure window before a threat could spread.</p>
+          <p>I analyzed suspicious emails, packet captures, and domains with OSINT tools to catch phishing and confirm malicious indicators. I also built the Conditional Access and Intune policies that balanced 90% external request availability with device compliance, so people stayed productive without weakening security. I administered accounts for 250+ employees with zero security breaches.</p>
+        </div>
       </div>
       <div class="timeline-item">
         <div class="timeline-node"></div>
-        <div class="timeline-when">2019 — 2021</div>
-        <div class="timeline-role">System Administrator</div>
-        <div class="timeline-org">Canary Consulting</div>
+        <div class="timeline-meta">
+          <div class="timeline-when">2019 — 2021</div>
+          <div class="timeline-role">System Administrator</div>
+          <div class="timeline-org">Canary Consulting</div>
+        </div>
+        <div class="timeline-story">
+          <p>I kept 200+ users at finance clients running: ServiceNow tickets, routine patching, and maintenance done early enough to catch problems before they became outages. I held a 90% satisfaction rate and talked with 30+ clients a day, which helped me spot recurring issues and fix the root cause instead of the symptom.</p>
+          <p>I automated account setup with Active Directory templates, making onboarding 25% faster, and tightened access controls and firewall rules, cutting network security incidents by 15%. This is where IT started turning into security work for me.</p>
+        </div>
       </div>
       <div class="timeline-item">
         <div class="timeline-node"></div>
-        <div class="timeline-when">2016 — 2022</div>
-        <div class="timeline-role">Patient Service Representative</div>
-        <div class="timeline-org">Patient First</div>
+        <div class="timeline-meta">
+          <div class="timeline-when">2016 — 2022</div>
+          <div class="timeline-role">Patient Service Representative</div>
+          <div class="timeline-org">Patient First</div>
+        </div>
+        <div class="timeline-story">
+          <p>Where it started. I was planning on medicine, but working in healthcare put me in front of a keyboard-only, DOS-style system and the IT people who kept it running. I loved it, and that curiosity is what moved me into technology.</p>
+        </div>
       </div>
     </div>
   </div>
