@@ -1,0 +1,43 @@
+# Uploads the site to S3 every time something is pushed to main.
+# Settings come from the repo's Actions variables (Settings -> Secrets and
+# variables -> Actions -> Variables): AWS_ROLE_ARN, AWS_REGION, S3_BUCKET,
+# and optionally CLOUDFRONT_DISTRIBUTION_ID.
+
+name: Deploy to S3
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: # lets you re-run it by hand from the Actions tab
+
+permissions:
+  id-token: write # lets GitHub prove its identity to AWS (no stored keys)
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      # Only website files go up. Nothing already in the bucket is deleted.
+      - name: Upload site to S3
+        run: |
+          aws s3 sync . "s3://${{ vars.S3_BUCKET }}" \
+            --exclude "*" \
+            --include "*.html" --include "*.css" --include "*.js" \
+            --include "*.png" --include "*.jpg" --include "*.svg" \
+            --include "*.ico" --include "*.pdf" \
+            --exclude ".github/*"
+
+      - name: Clear CloudFront cache
+        if: ${{ vars.CLOUDFRONT_DISTRIBUTION_ID != '' }}
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id "${{ vars.CLOUDFRONT_DISTRIBUTION_ID }}" \
+            --paths "/*"
