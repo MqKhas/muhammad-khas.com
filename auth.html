@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Restricted Access</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#F1F1F1;
+    --ink-dim:#9B9B9B;
+    --ink-faint:#5C5C5C;
+    --bg:#000000;
+    --line:#232323;
+    --accent:#FF00FF;
+    --accent-soft:rgba(255,0,255,0.5);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{
+    min-height:100vh;
+    background-color:var(--bg);
+    background-image:
+      linear-gradient(rgba(255,0,255,0.14) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,0,255,0.14) 1px, transparent 1px);
+    background-size:64px 64px;
+    color:var(--ink);
+    font-family:'IBM Plex Sans', sans-serif;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+    position:relative;
+    overflow-x:hidden;
+  }
+  .scan{
+    position:fixed;
+    left:0; right:0;
+    height:140px;
+    top:-140px;
+    background:linear-gradient(to bottom, transparent, rgba(255,0,255,0.18), transparent);
+    pointer-events:none;
+    animation:scan 9s linear infinite;
+  }
+  @keyframes scan{
+    0%{top:-140px;}
+    100%{top:100vh;}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .scan{display:none;}
+  }
+
+  .panel{
+    position:relative;
+    z-index:2;
+    width:100%;
+    max-width:360px;
+    border:1px solid var(--line);
+    background:rgba(0,0,0,0.6);
+    padding:36px 32px;
+    box-shadow:0 0 40px rgba(255,0,255,0.08);
+  }
+  .status-line{
+    display:flex;
+    align-items:center;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    color:var(--accent);
+    margin-bottom:20px;
+  }
+  .status-dot{
+    width:7px;
+    height:7px;
+    border-radius:50%;
+    background:var(--accent);
+    box-shadow:0 0 8px 2px var(--accent-soft);
+    margin-right:9px;
+  }
+  h1{
+    font-family:'Chakra Petch', sans-serif;
+    font-weight:600;
+    font-size:26px;
+    letter-spacing:0.01em;
+    margin-bottom:8px;
+    text-shadow:0 0 20px rgba(255,0,255,0.2);
+  }
+  .subtitle{
+    font-size:13.5px;
+    color:var(--ink-dim);
+    margin-bottom:28px;
+    line-height:1.6;
+  }
+  label{
+    display:block;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11.5px;
+    color:var(--ink-faint);
+    margin-bottom:6px;
+  }
+  .field{
+    margin-bottom:20px;
+  }
+  input{
+    width:100%;
+    background:#0a0a0a;
+    border:1px solid var(--line);
+    color:var(--ink);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:14px;
+    padding:11px 12px;
+    outline:none;
+    transition:border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+  input:focus{
+    border-color:var(--accent);
+    box-shadow:0 0 12px rgba(255,0,255,0.2);
+  }
+  button{
+    width:100%;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13.5px;
+    color:var(--ink);
+    background:transparent;
+    border:1px solid var(--accent);
+    padding:12px 0;
+    margin-top:8px;
+    cursor:pointer;
+    transition:background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+  }
+  button:hover, button:focus-visible{
+    background:var(--accent);
+    color:#000;
+    box-shadow:0 0 18px var(--accent-soft);
+  }
+  .result{
+    margin-top:18px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12.5px;
+    min-height:16px;
+  }
+  .result.deny{ color:var(--accent); }
+  .back{
+    display:block;
+    text-align:center;
+    margin-top:28px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11.5px;
+    color:var(--ink-faint);
+    text-decoration:none;
+  }
+  .back:hover{ color:var(--ink-dim); }
+  .im-in{
+    font-family:'Chakra Petch', sans-serif;
+    font-weight:700;
+    font-size:44px;
+    letter-spacing:0.02em;
+    color:var(--ink);
+    margin:4px 0 14px;
+    text-shadow:0 0 24px rgba(255,0,255,0.55);
+    animation:
+      imInReveal 0.6s ease-out forwards,
+      imInFlicker 1.6s linear infinite 0.6s,
+      imInGlitch 3.2s ease-in-out infinite 0.6s;
+  }
+  @keyframes imInReveal{
+    0%{ opacity:0; transform:scale(0.7); filter:blur(4px); }
+    15%{ opacity:1; transform:translate(-3px,1px) scale(1.05); text-shadow:2px 0 var(--accent), -2px 0 #00E5FF; }
+    30%{ transform:translate(3px,-1px) scale(1.05); }
+    45%{ transform:translate(-2px,0) scale(1.02); text-shadow:0 0 24px rgba(255,0,255,0.55); }
+    60%{ opacity:1; transform:scale(1.08); filter:blur(0); }
+    100%{ opacity:1; transform:scale(1); filter:blur(0); }
+  }
+  @keyframes imInFlicker{
+    0%, 92%, 100%{ opacity:1; }
+    93%{ opacity:0.5; }
+    94%{ opacity:1; }
+    96%{ opacity:0.7; }
+    97%{ opacity:1; }
+  }
+  @keyframes imInGlitch{
+    0%, 85%, 100%{ transform:translate(0,0); text-shadow:0 0 24px rgba(255,0,255,0.55); }
+    86%{ transform:translate(-3px,1px); text-shadow:2px 0 var(--accent), -2px 0 #00E5FF; }
+    88%{ transform:translate(3px,-1px); text-shadow:-2px 0 var(--accent), 2px 0 #00E5FF; }
+    90%{ transform:translate(-1px,0); text-shadow:1px 0 var(--accent); }
+    92%{ transform:translate(0,0); text-shadow:0 0 24px rgba(255,0,255,0.55); }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .im-in{ animation:none; opacity:1; transform:none; filter:none; }
+  }
+  .unlocked-note{
+    font-size:14px;
+    color:var(--ink-dim);
+  }
+  .session-info,
+  .session-timer{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    color:var(--ink-faint);
+    margin-bottom:2px;
+  }
+  .session-timer{
+    color:var(--accent);
+    margin-bottom:20px;
+  }
+  .guard-lines{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+  .guard-line{
+    font-size:14.5px;
+    color:var(--ink-dim);
+    line-height:1.5;
+    min-height:1.2em;
+  }
+  .glitch-line{
+    color:var(--ink);
+    animation:lineFlicker 2.6s ease-in-out infinite;
+  }
+  @keyframes lineFlicker{
+    0%, 100%{ opacity:1; text-shadow:none; }
+    91%{ opacity:1; text-shadow:none; }
+    92%{ opacity:0.4; text-shadow:1px 0 var(--accent), -1px 0 #00E5FF; }
+    93%{ opacity:1; text-shadow:none; }
+    96%{ opacity:0.6; text-shadow:-1px 0 var(--accent), 1px 0 #00E5FF; }
+    97%{ opacity:1; text-shadow:none; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .glitch-line{ animation:none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="scan"></div>
+
+<div class="panel" id="panel">
+  <div class="status-line">
+    <span class="status-dot" id="status-dot"></span>
+    <span id="status-text">SECURE CHANNEL</span>
+  </div>
+  <h1 id="heading">Restricted Access</h1>
+  <p class="subtitle" id="subtitle">This area is monitored. Authorized personnel only.</p>
+
+  <form id="auth-form" autocomplete="off">
+    <div class="field">
+      <label for="user">Username</label>
+      <input type="text" id="user" name="user" autocomplete="off" spellcheck="false">
+    </div>
+    <div class="field">
+      <label for="pass">Password</label>
+      <input type="password" id="pass" name="pass" autocomplete="off">
+    </div>
+    <button type="submit" id="submit-btn">Authenticate</button>
+    <div class="result" id="result"></div>
+  </form>
+
+  <div id="unlocked" class="unlocked" hidden>
+    <p class="im-in" id="im-in-text">I'M IN</p>
+    <p class="session-info" id="session-info"></p>
+    <p class="session-timer" id="session-timer"></p>
+    <div id="guard-lines" class="guard-lines"></div>
+    <!--
+      HOW TO PUT SOMETHING ELSE SECRET HERE:
+      Add whatever else you want revealed on a correct login inside this div -
+      text, a link, an image, whatever. It's hidden until login succeeds,
+      then shown in place of the form.
+    -->
+  </div>
+
+  <a href="index.html" class="back">← Return</a>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  // ---- CHANGE THESE TWO VALUES TO YOUR OWN CREDENTIALS ----
+  var VALID_USER = "m.khas";
+  var VALID_PASS = "s3cur1Ty_8y_0Bscu21ty_00Ps";
+  // -----------------------------------------------------------
+
+  var MAX_ATTEMPTS = 10;
+  var attemptsLeft = MAX_ATTEMPTS;
+
+  var form = document.getElementById('auth-form');
+  var result = document.getElementById('result');
+  var userInput = document.getElementById('user');
+  var passInput = document.getElementById('pass');
+  var submitBtn = document.getElementById('submit-btn');
+  var panel = document.getElementById('panel');
+  var statusDot = document.getElementById('status-dot');
+  var statusText = document.getElementById('status-text');
+  var heading = document.getElementById('heading');
+  var subtitle = document.getElementById('subtitle');
+
+  if(!form){
+    console.error('Auth form not found on page - markup may be broken.');
+    return;
+  }
+
+  function handleSubmit(e){
+    if(e && e.preventDefault) e.preventDefault();
+    if(attemptsLeft <= 0) return;
+
+    var enteredUser = userInput.value;
+    var enteredPass = passInput.value;
+
+    result.textContent = 'Verifying credentials...';
+    result.className = 'result';
+
+    setTimeout(function(){
+      if(enteredUser === VALID_USER && enteredPass === VALID_PASS){
+        unlock();
+      } else {
+        attemptsLeft--;
+        if(attemptsLeft <= 0){
+          lockOut();
+        } else {
+          result.textContent = 'Access denied. ' + attemptsLeft + ' attempt' + (attemptsLeft === 1 ? '' : 's') + ' remaining.';
+          result.className = 'result deny';
+          passInput.value = '';
+          passInput.focus();
+        }
+      }
+    }, 700);
+  }
+
+  form.addEventListener('submit', handleSubmit);
+  // Fallback in case something in the environment swallows the form's
+  // native submit event - clicking the button will still work either way.
+  submitBtn.addEventListener('click', function(e){
+    e.preventDefault();
+    handleSubmit(e);
+  });
+
+  function sleep(ms){
+    return new Promise(function(resolve){ setTimeout(resolve, ms); });
+  }
+
+  function typeLine(el, text){
+    return new Promise(function(resolve){
+      var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if(reduceMotion){
+        el.textContent = text;
+        resolve();
+        return;
+      }
+      var i = 0;
+      var speed = 38; // ms per character
+      var timer = setInterval(function(){
+        if(i < text.length){
+          el.textContent += text[i];
+          i++;
+        } else {
+          clearInterval(timer);
+          resolve();
+        }
+      }, speed);
+    });
+  }
+
+  // Escalating pauses: fast and panicked at first, dragging out toward the end.
+  var guardLines = [
+    { text: "Hey.", delay: 1000 },
+    { text: "Wait a minute.", delay: 1000 },
+    { text: "Hey stop right there.", delay: 1000 },
+    { text: "What do you think you're doing?", delay: 1000 },
+    { text: "You're not supposed to be here!", delay: 1200 },
+    { text: "Do not click on ANYTHING.", delay: 1200 },
+    { text: "How did you even find this place?", delay: 1500 },
+    { text: "What is wrong with you?", delay: 1500 },
+    { text: "Do not move your mouse anywhere, this place is rigged to BLOW.", delay: 2500 },
+    { text: "I'm too old and or young for this.", delay: 2500 },
+    { text: "STOP moving the mouse NOW.", delay: 3000 },
+    { text: "You are putting us all in grave danger.", delay: 4000 },
+    { text: "Please just hit the back button and pretend like you never saw this.", delay: 5000 },
+    { text: "I have a family.", delay: 6000 },
+    { text: "If he finds out you were here oh man I'm going to be in a world of hurt.", delay: 7000 },
+    { text: "Pl3as3 ju5t l3av3 n0w.", delay: 10000, glitch: true },
+    { text: "Th3r3'5 l17erally a t1mer runn1ng PL3ASE.", delay: 10000, glitch: true },
+    { text: "0h g0d.. I th1nk I h34r h1m typ1ng in....", delay: 0, glitch: true }
+  ];
+
+  function playGuardLines(){
+    var container = document.getElementById('guard-lines');
+    var i = 0;
+    function next(){
+      if(i >= guardLines.length) return;
+      var line = guardLines[i];
+      var p = document.createElement('p');
+      p.className = 'guard-line' + (line.glitch ? ' glitch-line' : '');
+      container.appendChild(p);
+      typeLine(p, line.text).then(function(){
+        var thisLine = guardLines[i];
+        i++;
+        if(thisLine.delay){
+          setTimeout(next, thisLine.delay);
+        } else {
+          next();
+        }
+      });
+    }
+    next();
+  }
+
+  function unlock(){
+    statusText.textContent = 'ACCESS GRANTED';
+    statusDot.style.background = '#7DFF9E';
+    statusDot.style.boxShadow = '0 0 8px 2px rgba(125,255,158,0.5)';
+    statusText.style.color = '#7DFF9E';
+    heading.textContent = 'Welcome';
+    subtitle.textContent = 'Identity confirmed.';
+    form.hidden = true;
+    document.getElementById('unlocked').hidden = false;
+
+    var signInTime = new Date();
+    document.getElementById('session-info').textContent = 'Session started ' + signInTime.toLocaleTimeString();
+    var startTs = Date.now();
+    var timerEl = document.getElementById('session-timer');
+    function pad2(n){
+      n = String(n);
+      return n.length < 2 ? '0' + n : n;
+    }
+    function updateTimer(){
+      var elapsed = Math.floor((Date.now() - startTs) / 1000);
+      var mm = pad2(Math.floor(elapsed / 60));
+      var ss = pad2(elapsed % 60);
+      timerEl.textContent = 'Elapsed ' + mm + ':' + ss;
+    }
+    updateTimer();
+    setInterval(updateTimer, 1000);
+
+    setTimeout(playGuardLines, 800);
+  }
+
+  function lockOut(){
+    result.textContent = 'Access permanently denied. Attempts exhausted.';
+    result.className = 'result deny';
+    userInput.disabled = true;
+    passInput.disabled = true;
+    submitBtn.disabled = true;
+    submitBtn.style.opacity = '0.4';
+    submitBtn.style.cursor = 'not-allowed';
+    panel.style.borderColor = 'var(--accent)';
+  }
+});
+</script>
+
+</body>
+</html>
