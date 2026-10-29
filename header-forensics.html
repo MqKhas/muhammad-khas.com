@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Header Forensics</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #12151a;
+    --panel: #1a1f27;
+    --panel-alt: #202632;
+    --border: #2b323e;
+    --text: #dbe1e8;
+    --text-dim: #7e8a99;
+    --text-faint: #4d5666;
+    --accent: #5fb6a6;
+    --accent-dim: #3a6e64;
+    --amber: #e0a458;
+    --red: #d9695f;
+    --blue: #6c93c2;
+    --mono: 'IBM Plex Mono', 'SF Mono', Consolas, monospace;
+    --sans: 'IBM Plex Sans', -apple-system, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:var(--sans); -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1180px; margin:0 auto; padding:32px 24px 64px;}
+
+  .masthead{
+    display:flex; align-items:baseline; justify-content:space-between;
+    border-bottom:1px solid var(--border); padding-bottom:18px; margin-bottom:28px;
+    flex-wrap:wrap; gap:10px;
+  }
+  .masthead .title-block{display:flex; align-items:baseline; gap:14px;}
+  .eyebrow{
+    font-family:var(--mono); font-size:11px; letter-spacing:.12em; text-transform:uppercase;
+    color:var(--accent); border:1px solid var(--accent-dim); padding:3px 8px; border-radius:3px;
+  }
+  h1{font-size:22px; margin:0; font-weight:600; letter-spacing:-.01em;}
+  .masthead .sub{font-family:var(--mono); font-size:12px; color:var(--text-faint);}
+
+  .grid{display:grid; grid-template-columns: 1fr; gap:20px;}
+  @media(min-width:960px){ .grid.results{grid-template-columns: 340px 1fr;} }
+
+  .panel{
+    background:var(--panel); border:1px solid var(--border); border-radius:8px;
+    padding:20px;
+  }
+  .panel h2{
+    font-size:12px; text-transform:uppercase; letter-spacing:.1em; color:var(--text-dim);
+    margin:0 0 14px 0; font-weight:600; font-family:var(--mono);
+  }
+
+  textarea{
+    width:100%; min-height:220px; background:var(--panel-alt); color:var(--text);
+    border:1px solid var(--border); border-radius:6px; padding:12px; font-family:var(--mono);
+    font-size:12.5px; line-height:1.55; resize:vertical;
+  }
+  textarea:focus{outline:none; border-color:var(--accent-dim);}
+  textarea::placeholder{color:var(--text-faint);}
+
+  .btn-row{display:flex; gap:10px; margin-top:12px; flex-wrap:wrap;}
+  button{
+    font-family:var(--sans); font-size:13px; font-weight:600; padding:9px 16px;
+    border-radius:6px; border:1px solid transparent; cursor:pointer;
+    transition:filter .12s ease;
+  }
+  button:focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
+  .btn-primary{background:var(--accent); color:#0d1512;}
+  .btn-primary:hover{filter:brightness(1.08);}
+  .btn-ghost{background:transparent; color:var(--text-dim); border-color:var(--border);}
+  .btn-ghost:hover{color:var(--text); border-color:var(--text-dim);}
+
+  .hint{font-size:11.5px; color:var(--text-faint); margin-top:10px; line-height:1.5;}
+
+  .empty-state{
+    color:var(--text-faint); font-family:var(--mono); font-size:12.5px; line-height:1.7;
+    padding:30px 6px;
+  }
+
+  /* Summary card */
+  .kv{display:grid; grid-template-columns: 92px 1fr; gap:6px 10px; font-size:12.5px; margin-bottom:8px;}
+  .kv dt{color:var(--text-faint); font-family:var(--mono); font-size:11px; text-transform:uppercase; letter-spacing:.05em; padding-top:2px;}
+  .kv dd{margin:0; font-family:var(--mono); word-break:break-word; color:var(--text);}
+
+  .badge-row{display:flex; gap:8px; flex-wrap:wrap; margin:14px 0 4px;}
+  .badge{
+    font-family:var(--mono); font-size:11px; font-weight:600; letter-spacing:.03em;
+    padding:4px 9px; border-radius:4px; text-transform:uppercase; display:flex; align-items:center; gap:5px;
+  }
+  .badge.pass{background:rgba(95,182,166,.13); color:var(--accent); border:1px solid var(--accent-dim);}
+  .badge.fail{background:rgba(217,105,95,.13); color:var(--red); border:1px solid #6b3a36;}
+  .badge.warn{background:rgba(224,164,88,.13); color:var(--amber); border:1px solid #6b5230;}
+  .badge.none{background:rgba(126,138,153,.1); color:var(--text-dim); border:1px solid var(--border);}
+
+  .flag-list{list-style:none; margin:14px 0 0; padding:0; display:flex; flex-direction:column; gap:8px;}
+  .flag{
+    font-size:12.5px; padding:9px 10px; border-radius:5px; border-left:3px solid var(--border);
+    background:var(--panel-alt); line-height:1.45;
+  }
+  .flag.risk{border-left-color:var(--red);}
+  .flag.notice{border-left-color:var(--amber);}
+  .flag.ok{border-left-color:var(--accent);}
+  .flag b{font-family:var(--mono);}
+
+  /* Hop ledger */
+  .ledger{display:flex; flex-direction:column;}
+  .hop{
+    display:grid; grid-template-columns: 34px 1fr; gap:14px; position:relative; padding-bottom:20px;
+  }
+  .hop:last-child{padding-bottom:0;}
+  .hop-marker{
+    display:flex; flex-direction:column; align-items:center;
+  }
+  .hop-num{
+    width:26px; height:26px; border-radius:50%; background:var(--panel-alt); border:1px solid var(--border);
+    display:flex; align-items:center; justify-content:center; font-family:var(--mono); font-size:11px;
+    color:var(--text-dim); flex-shrink:0;
+  }
+  .hop.flagged .hop-num{border-color:var(--amber); color:var(--amber);}
+  .hop-line{width:1px; flex:1; background:var(--border); margin-top:4px;}
+  .hop-body{
+    background:var(--panel-alt); border:1px solid var(--border); border-radius:6px; padding:12px 14px;
+  }
+  .hop-top{display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; align-items:baseline; margin-bottom:6px;}
+  .hop-servers{font-family:var(--mono); font-size:12.5px; color:var(--text);}
+  .hop-servers .arrow{color:var(--text-faint); margin:0 6px;}
+  .hop-time{font-family:var(--mono); font-size:11px; color:var(--text-faint); white-space:nowrap;}
+  .hop-delay{
+    font-family:var(--mono); font-size:11px; margin-top:2px;
+  }
+  .hop-delay.long{color:var(--amber);}
+  .hop-meta{font-family:var(--mono); font-size:11px; color:var(--text-faint); margin-top:4px;}
+  .hop-note{font-size:11.5px; color:var(--amber); margin-top:6px;}
+
+  details.raw{margin-top:22px;}
+  details.raw summary{
+    cursor:pointer; font-family:var(--mono); font-size:12px; color:var(--text-dim);
+    padding:8px 0; user-select:none;
+  }
+  details.raw pre{
+    background:var(--panel-alt); border:1px solid var(--border); border-radius:6px;
+    padding:14px; font-family:var(--mono); font-size:11.5px; line-height:1.6; overflow-x:auto;
+    color:var(--text-dim); white-space:pre-wrap; word-break:break-all;
+  }
+
+  .section-title{
+    font-size:11px; text-transform:uppercase; letter-spacing:.1em; color:var(--text-faint);
+    margin:22px 0 12px; font-family:var(--mono);
+  }
+  .section-title:first-child{margin-top:0;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="masthead">
+    <div class="title-block">
+      <span class="eyebrow">SOC</span>
+      <h1>Header Forensics</h1>
+    </div>
+    <span class="sub">parses locally in your browser - nothing is sent anywhere</span>
+  </div>
+
+  <div class="grid">
+    <div class="panel">
+      <h2>Raw Headers</h2>
+      <textarea id="input" placeholder="Paste the full email headers here (From, Received, Authentication-Results, DKIM-Signature, etc.)"></textarea>
+      <div class="btn-row">
+        <button class="btn-primary" onclick="analyze()">Analyze headers</button>
+        <button class="btn-ghost" onclick="loadSample()">Load sample</button>
+        <button class="btn-ghost" onclick="clearAll()">Clear</button>
+      </div>
+      <div class="hint">In Gmail: open the message → ⋮ → "Show original". In Outlook: File → Properties → Internet headers. Copy the whole block and paste it above.</div>
+    </div>
+
+    <div id="results"></div>
+  </div>
+
+</div>
+
+<script>
+const resultsEl = document.getElementById('results');
+
+function esc(s){
+  if(s === undefined || s === null) return '';
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function clearAll(){
+  document.getElementById('input').value = '';
+  renderEmpty();
+}
+
+function renderEmpty(){
+  resultsEl.innerHTML = `<div class="panel" style="grid-column:1/-1;">
+    <div class="empty-state">Paste headers on the left and click "Analyze headers" to see:<br><br>
+    → sender identity &amp; whether From / Reply-To / Return-Path line up<br>
+    → SPF / DKIM / DMARC verdicts<br>
+    → the hop-by-hop delivery chain, in order, with timing gaps flagged<br>
+    → anything else that looks off</div>
+  </div>`;
+}
+
+function loadSample(){
+  document.getElementById('input').value =
+`Delivered-To: analyst@example-corp.com
+Received: by 2002:a05:6602:1a8e:b0:123:abcd:ef01 with SMTP id x1csp1234567edw;
+        Wed, 29 Jul 2026 09:14:02 -0700 (PDT)
+Received: from mail-relay-secure02.paypa1-billing.com (mail-relay-secure02.paypa1-billing.com. [185.220.101.47])
+        by mx.google.com with ESMTPS id a1-20020a170906;
+        Wed, 29 Jul 2026 09:13:41 -0700 (PDT)
+Received: from internal-mta.paypa1-billing.com (unknown [10.10.4.22])
+        by mail-relay-secure02.paypa1-billing.com with ESMTP id z9k2;
+        Wed, 29 Jul 2026 09:02:15 -0700 (PDT)
+Authentication-Results: mx.google.com;
+       spf=softfail (google.com: domain of transitioning billing@paypa1-billing.com does not designate 185.220.101.47 as permitted sender) smtp.mailfrom=billing@paypa1-billing.com;
+       dkim=none (message not signed);
+       dmarc=fail (p=REJECT sp=REJECT dis=NONE) header.from=paypal.com
+From: "PayPal Security" <billing@paypa1-billing.com>
+Reply-To: paypal-support@secure-alerts-team.com
+To: analyst@example-corp.com
+Return-Path: <bounce@paypa1-billing.com>
+Subject: Unusual sign-in activity on your account
+Date: Wed, 29 Jul 2026 09:02:10 -0700
+Message-ID: <a1b2c3d4e5@internal-mta.paypa1-billing.com>
+X-Originating-IP: [185.220.101.47]`;
+  analyze();
+}
+
+/* ---------- parsing ---------- */
+
+function unfoldHeaders(raw){
+  const rawLines = raw.replace(/\r\n/g,'\n').split('\n');
+  const lines = [];
+  for(const line of rawLines){
+    if(/^[ \t]/.test(line) && lines.length){
+      lines[lines.length-1] += ' ' + line.trim();
+    } else if(line.trim() !== ''){
+      lines.push(line);
+    }
+  }
+  return lines;
+}
+
+function parseHeaderLines(lines){
+  const headers = [];
+  for(const line of lines){
+    const idx = line.indexOf(':');
+    if(idx === -1) continue;
+    const name = line.slice(0, idx).trim();
+    const value = line.slice(idx+1).trim();
+    headers.push({name, value, lower: name.toLowerCase()});
+  }
+  return headers;
+}
+
+function getHeader(headers, name){
+  const h = headers.find(h => h.lower === name.toLowerCase());
+  return h ? h.value : null;
+}
+
+function getAllHeaders(headers, name){
+  return headers.filter(h => h.lower === name.toLowerCase()).map(h => h.value);
+}
+
+function extractEmail(addrField){
+  if(!addrField) return null;
+  const m = addrField.match(/<([^>]+)>/) || addrField.match(/([\w.+-]+@[\w.-]+\.\w+)/);
+  return m ? m[1].trim() : addrField.trim();
+}
+
+function domainOf(email){
+  if(!email) return null;
+  const m = email.match(/@([\w.-]+\.\w+)/);
+  return m ? m[1].toLowerCase() : null;
+}
+
+function parseReceived(value){
+  // strip trailing date after last semicolon
+  let dateStr = null, body = value;
+  const semi = value.lastIndexOf(';');
+  if(semi !== -1){
+    dateStr = value.slice(semi+1).trim();
+    body = value.slice(0, semi);
+  }
+  const fromMatch = body.match(/from\s+([^\s]+(?:\s*\([^)]*\))?)\s*(?:by|$)/i);
+  const byMatch = body.match(/by\s+([^\s]+)/i);
+  const withMatch = body.match(/with\s+([\w./-]+)/i);
+  const ipMatch = body.match(/\[?(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\]?/);
+
+  let ts = null;
+  if(dateStr){
+    const parsed = new Date(dateStr);
+    if(!isNaN(parsed.getTime())) ts = parsed;
+  }
+  return {
+    from: fromMatch ? fromMatch[1].trim() : null,
+    by: byMatch ? byMatch[1].trim() : null,
+    proto: withMatch ? withMatch[1].trim() : null,
+    ip: ipMatch ? ipMatch[1] : null,
+    dateStr,
+    ts,
+    raw: value
+  };
+}
+
+function parseAuthResults(value){
+  if(!value) return {};
+  const out = {};
+  const spf = value.match(/spf=(\w+)/i);
+  const dkim = value.match(/dkim=(\w+)/i);
+  const dmarc = value.match(/dmarc=(\w+)/i);
+  const compauth = value.match(/compauth=(\w+)/i);
+  if(spf) out.spf = spf[1].toLowerCase();
+  if(dkim) out.dkim = dkim[1].toLowerCase();
+  if(dmarc) out.dmarc = dmarc[1].toLowerCase();
+  if(compauth) out.compauth = compauth[1].toLowerCase();
+  return out;
+}
+
+function verdictClass(v){
+  if(!v) return 'none';
+  if(['pass'].includes(v)) return 'pass';
+  if(['fail','none','permerror'].includes(v)) return 'fail';
+  if(['softfail','neutral','temperror','policy'].includes(v)) return 'warn';
+  return 'none';
+}
+
+function fmtDelay(ms){
+  if(ms === null || ms === undefined) return null;
+  const s = Math.round(ms/1000);
+  if(s < 60) return s + 's';
+  const m = Math.floor(s/60), rem = s%60;
+  if(m < 60) return m + 'm ' + rem + 's';
+  const h = Math.floor(m/60), remM = m%60;
+  return h + 'h ' + remM + 'm';
+}
+
+/* ---------- analysis + render ---------- */
+
+function analyze(){
+  const raw = document.getElementById('input').value;
+  if(!raw.trim()){ renderEmpty(); return; }
+
+  const lines = unfoldHeaders(raw);
+  const headers = parseHeaderLines(lines);
+
+  if(headers.length === 0){
+    resultsEl.innerHTML = `<div class="panel" style="grid-column:1/-1;"><div class="empty-state" style="color:var(--red)">Couldn't find anything that looks like email headers in that text. Make sure you pasted the full header block (From:, Received:, etc.), not just the message body.</div></div>`;
+    return;
+  }
+
+  const from = getHeader(headers,'From');
+  const to = getHeader(headers,'To');
+  const replyTo = getHeader(headers,'Reply-To');
+  const returnPath = getHeader(headers,'Return-Path');
+  const subject = getHeader(headers,'Subject');
+  const date = getHeader(headers,'Date');
+  const messageId = getHeader(headers,'Message-ID');
+  const originatingIp = getHeader(headers,'X-Originating-IP');
+
+  const fromEmail = extractEmail(from);
+  const replyEmail = extractEmail(replyTo);
+  const returnEmail = extractEmail(returnPath);
+
+  const fromDomain = domainOf(fromEmail);
+  const replyDomain = domainOf(replyEmail);
+  const returnDomain = domainOf(returnEmail);
+
+  // Auth-Results - may appear multiple times (multiple filters)
+  const authRaw = getAllHeaders(headers, 'Authentication-Results');
+  let auth = {};
+  for(const a of authRaw){ auth = {...parseAuthResults(a), ...auth}; }
+  // if nothing found merge all
+  if(Object.keys(auth).length === 0 && authRaw.length){
+    auth = parseAuthResults(authRaw.join(' '));
+  }
+
+  const dkimSig = getHeader(headers, 'DKIM-Signature');
+
+  // Received chain - top of headers = closest to recipient (most recent)
+  const receivedRaw = getAllHeaders(headers, 'Received');
+  const hops = receivedRaw.map(parseReceived);
+  const chronological = [...hops].reverse(); // oldest (origin) first
+
+  // flags
+  const flags = [];
+
+  if(replyDomain && fromDomain && replyDomain !== fromDomain){
+    flags.push({level:'risk', text:`Reply-To domain (<b>${esc(replyDomain)}</b>) doesn't match the From domain (<b>${esc(fromDomain)}</b>). Replies would go somewhere other than the visible sender - a common BEC/phishing pattern.`});
+  }
+  if(returnDomain && fromDomain && returnDomain !== fromDomain){
+    flags.push({level:'notice', text:`Return-Path domain (<b>${esc(returnDomain)}</b>) differs from the From domain (<b>${esc(fromDomain)}</b>). Can be legitimate (mailing platforms, forwarders) but worth a second look.`});
+  }
+  if(auth.spf === 'fail' || auth.spf === 'softfail'){
+    flags.push({level: auth.spf==='fail'?'risk':'notice', text:`SPF result is <b>${esc(auth.spf)}</b> - the sending server wasn't authorized to send for this domain.`});
+  }
+  if(auth.dkim === 'fail' || auth.dkim === 'none'){
+    flags.push({level: auth.dkim==='fail'?'risk':'notice', text:`DKIM result is <b>${esc(auth.dkim)}</b> - message ${auth.dkim==='none'?'was not signed':'failed signature verification'}.`});
+  }
+  if(auth.dmarc === 'fail'){
+    flags.push({level:'risk', text:`DMARC <b>fail</b> - this message did not align with the domain's published policy. If the domain enforces <b>p=reject</b>, this should have been blocked.`});
+  }
+  // homoglyph / lookalike-ish check: domain contains digit substitutions for letters
+  if(fromDomain && /[0-9]/.test(fromDomain.replace(/\.\w+$/,'')) && /[a-z]/i.test(fromDomain)){
+    flags.push({level:'notice', text:`Sending domain <b>${esc(fromDomain)}</b> mixes letters and digits - check carefully for lookalike substitution (e.g. "1" for "l", "0" for "o").`});
+  }
+  // long gaps between hops
+  let longGap = false;
+  for(let i=1;i<chronological.length;i++){
+    const prev = chronological[i-1], cur = chronological[i];
+    if(prev.ts && cur.ts){
+      const diff = cur.ts - prev.ts;
+      if(diff > 30*60*1000){ longGap = true; }
+    }
+  }
+  if(longGap){
+    flags.push({level:'notice', text:`One or more hops in the delivery chain show a gap of 30+ minutes. Could be queuing/retry delay, or a sign the message sat somewhere unexpected.`});
+  }
+  if(flags.length === 0){
+    flags.push({level:'ok', text:`No obvious red flags in identity alignment or authentication results. Still use judgment - headers can be spoofed by a determined sender.`});
+  }
+
+  // build hop HTML with delays
+  let hopHtml = '';
+  chronological.forEach((hop, i) => {
+    const prev = chronological[i-1];
+    let delayHtml = '';
+    let flagged = false;
+    if(prev && prev.ts && hop.ts){
+      const diffMs = hop.ts - prev.ts;
+      const isLong = diffMs > 30*60*1000;
+      flagged = isLong;
+      delayHtml = `<div class="hop-delay ${isLong?'long':''}">+${fmtDelay(Math.max(diffMs,0))} since previous hop${isLong?' - longer than typical':''}</div>`;
+    } else if(i>0){
+      delayHtml = `<div class="hop-delay">timestamp unavailable for gap calc</div>`;
+    }
+    hopHtml += `
+      <div class="hop ${flagged?'flagged':''}">
+        <div class="hop-marker">
+          <div class="hop-num">${i+1}</div>
+          ${i < chronological.length-1 ? '<div class="hop-line"></div>' : ''}
+        </div>
+        <div class="hop-body">
+          <div class="hop-top">
+            <div class="hop-servers">${esc(hop.from) || '<i>unknown origin</i>'} <span class="arrow">→</span> ${esc(hop.by) || '<i>unknown</i>'}</div>
+            <div class="hop-time">${hop.dateStr ? esc(hop.dateStr) : 'no timestamp'}</div>
+          </div>
+          ${delayHtml}
+          <div class="hop-meta">${hop.proto ? 'protocol: '+esc(hop.proto)+'  ·  ' : ''}${hop.ip ? 'ip: '+esc(hop.ip) : ''}</div>
+        </div>
+      </div>`;
+  });
+  if(chronological.length === 0){
+    hopHtml = `<div class="empty-state" style="padding:10px 0;">No <b>Received:</b> headers found - can't reconstruct a delivery path from this.</div>`;
+  }
+
+  const authBadges = `
+    <div class="badge-row">
+      ${auth.spf ? `<span class="badge ${verdictClass(auth.spf)}">SPF: ${esc(auth.spf)}</span>` : '<span class="badge none">SPF: n/a</span>'}
+      ${auth.dkim ? `<span class="badge ${verdictClass(auth.dkim)}">DKIM: ${esc(auth.dkim)}</span>` : (dkimSig ? '<span class="badge warn">DKIM: signed, unverified</span>' : '<span class="badge none">DKIM: n/a</span>')}
+      ${auth.dmarc ? `<span class="badge ${verdictClass(auth.dmarc)}">DMARC: ${esc(auth.dmarc)}</span>` : '<span class="badge none">DMARC: n/a</span>'}
+    </div>`;
+
+  resultsEl.innerHTML = `
+    <div class="panel">
+      <h2>Case Summary</h2>
+      <dl class="kv">
+        <dt>From</dt><dd>${esc(from) || '-'}</dd>
+        <dt>To</dt><dd>${esc(to) || '-'}</dd>
+        <dt>Reply-To</dt><dd>${esc(replyTo) || '<span style="color:var(--text-faint)">not set</span>'}</dd>
+        <dt>Return-Path</dt><dd>${esc(returnPath) || '-'}</dd>
+        <dt>Subject</dt><dd>${esc(subject) || '-'}</dd>
+        <dt>Date</dt><dd>${esc(date) || '-'}</dd>
+        <dt>Message-ID</dt><dd style="font-size:11px;">${esc(messageId) || '-'}</dd>
+        ${originatingIp ? `<dt>Orig. IP</dt><dd>${esc(originatingIp)}</dd>` : ''}
+      </dl>
+      ${authBadges}
+      <div class="section-title">Findings</div>
+      <ul class="flag-list">
+        ${flags.map(f => `<li class="flag ${f.level}">${f.text}</li>`).join('')}
+      </ul>
+    </div>
+
+    <div class="panel">
+      <h2>Delivery Chain (chronological)</h2>
+      <div class="ledger">${hopHtml}</div>
+      <details class="raw">
+        <summary>View raw headers</summary>
+        <pre>${esc(raw)}</pre>
+      </details>
+    </div>
+  `;
+  resultsEl.className = 'grid results';
+}
+
+renderEmpty();
+</script>
+</body>
+</html>

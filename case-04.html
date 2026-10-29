@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Account takeover detection fix — Muhammad Khas</title>
+<title>CVE Write-Ups - Muhammad Khas</title>
 <script>document.documentElement.classList.add('js');</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -32,17 +32,20 @@
     <article class="post">
       <a class="post-back" href="projects.html">‹ All projects</a>
       <div class="section-head">
-        <h2>Account takeover detection quality fix</h2>
+        <h2>CVE Write-Ups - The Big Ones from 2021</h2>
         <span class="section-tag">CASE-04</span>
       </div>
-      <p class="post-meta">Arctic Wolf · Triage</p>
+      <p class="post-meta">Coursework · George Mason University (IT 429) · Spring 2023</p>
       <div class="post-body">
-        <h3 class="sub-head">The problem</h3>
-        <p>I kept seeing the same pattern: customers were alerted on multiple account takeovers when only one valid account actually existed. Every extra alert meant wasted effort on the customer's side, and over time it chipped away at their trust in what we were telling them.</p>
-        <h3 class="sub-head">What I did</h3>
-        <p>Instead of explaining it away one ticket at a time, I wrote a formal escalation report. It documented the gap, what the expected behavior should be, and the impact on customers.</p>
-        <h3 class="sub-head">Result</h3>
-        <p>The escalation became a <strong>tracked product fix</strong> that improved how account-takeover activity is correlated and alerted on.</p>
+        <h3 class="post-head">The vulnerabilities</h3>
+        <ul>
+          <li><strong>Log4Shell:</strong> an unauthenticated flaw in the Log4j logging library that let attackers get code executed just by getting it logged. Its attack surface was enormous, hitting companies like Apple, Amazon, Microsoft, and Steam.</li>
+          <li><strong>ProxyShell:</strong> three Exchange Server vulnerabilities chained together: get in, escalate privileges, then execute code remotely on unpatched servers.</li>
+          <li><strong>ProxyLogon:</strong> another Exchange chain, starting with a server-side request forgery over port 443, used to steal mailbox content.</li>
+          <li><strong>CVE-2021-26084:</strong> an OGNL injection in Confluence Server and Data Center that let unauthenticated users run code. Crypto-miners used it on unpatched servers.</li>
+        </ul>
+        <h3 class="post-head">Port review</h3>
+        <p>I also reviewed risky open ports on my own machine: FTP (20/21) is outdated and open to password brute-forcing, SMB (445) is exposed to EternalBlue, and Telnet (23) has been replaced by SSH. If a service isn't in use, turn it off.</p>
       </div>
     </article>
   </div>
@@ -50,7 +53,7 @@
 </main>
 
 <footer>
-  <div class="wrap">M<a href="auth.html" class="ghost-link">u</a>hammad Khas — updated <span class="year">2026</span></div>
+  <div class="wrap">M<a href="auth.html" class="ghost-link">u</a>hammad Khas - updated <span class="year">2026</span></div>
 </footer>
 
 <script src="site.js"></script>

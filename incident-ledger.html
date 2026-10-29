@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Incident Ledger</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
+
+:root{
+  --bg:#12161f;
+  --panel:#1a2130;
+  --panel-alt:#212a3d;
+  --border:#2c3650;
+  --text:#e8ecf2;
+  --text-dim:#8b93a7;
+  --text-faint:#5c6478;
+  --accent-blue:#5b8dd6;
+  --accent-teal:#4fb3a9;
+  --accent-amber:#e8a33d;
+  --accent-orange:#d9703d;
+  --accent-red:#c1554a;
+  --mono:'IBM Plex Mono', ui-monospace, monospace;
+  --sans:'IBM Plex Sans', system-ui, sans-serif;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:var(--sans);height:100%;}
+#root{height:100vh;}
+button{font-family:var(--sans);cursor:pointer;}
+input,select,textarea{font-family:var(--sans);}
+
+.app{display:flex;height:100vh;overflow:hidden;}
+
+/* Sidebar */
+.sidebar{width:250px;flex-shrink:0;background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:20px 16px;overflow-y:auto;}
+.brand{display:flex;flex-direction:column;gap:2px;margin-bottom:22px;}
+.brand-mark{font-family:var(--mono);font-weight:700;font-size:15px;letter-spacing:0.14em;color:var(--text);}
+.brand-mark span{color:var(--accent-amber);}
+.brand-sub{font-size:11px;color:var(--text-faint);letter-spacing:0.04em;}
+
+.case-switcher{margin-bottom:18px;}
+.case-switcher label{display:block;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-faint);margin-bottom:6px;}
+.case-select{width:100%;background:var(--panel-alt);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:6px;font-size:13px;}
+.new-case-btn{width:100%;margin-top:8px;background:transparent;border:1px dashed var(--border);color:var(--text-dim);padding:8px 10px;border-radius:6px;font-size:12.5px;text-align:left;}
+.new-case-btn:hover{border-color:var(--accent-blue);color:var(--text);}
+
+.nav{display:flex;flex-direction:column;gap:2px;margin-top:6px;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:6px;color:var(--text-dim);font-size:13.5px;border:1px solid transparent;background:transparent;text-align:left;width:100%;}
+.nav-item svg{width:15px;height:15px;flex-shrink:0;opacity:0.8;}
+.nav-item:hover{background:var(--panel-alt);color:var(--text);}
+.nav-item.active{background:var(--panel-alt);color:var(--text);border-color:var(--border);}
+.nav-count{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--text-faint);}
+
+.sidebar-footer{margin-top:auto;padding-top:16px;font-size:10.5px;color:var(--text-faint);border-top:1px solid var(--border);line-height:1.5;}
+
+/* Main */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 26px;border-bottom:1px solid var(--border);gap:16px;flex-shrink:0;}
+.topbar-left{display:flex;flex-direction:column;gap:4px;min-width:0;}
+.case-code{font-family:var(--mono);font-size:11px;color:var(--text-faint);letter-spacing:0.05em;}
+.case-title{font-size:18px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.topbar-right{display:flex;gap:10px;align-items:center;flex-shrink:0;}
+
+.btn{border:1px solid var(--border);background:var(--panel-alt);color:var(--text);padding:8px 14px;border-radius:6px;font-size:12.5px;font-weight:500;}
+.btn:hover{border-color:var(--accent-blue);}
+.btn-primary{background:var(--accent-blue);border-color:var(--accent-blue);color:#0e1420;}
+.btn-primary:hover{opacity:0.9;}
+.btn-danger{background:transparent;border-color:var(--accent-red);color:var(--accent-red);}
+.btn-danger:hover{background:rgba(193,85,74,0.12);}
+.btn-ghost{background:transparent;border-color:transparent;color:var(--text-dim);}
+.btn-ghost:hover{color:var(--text);}
+.btn-sm{padding:5px 10px;font-size:11.5px;}
+
+.content{flex:1;overflow-y:auto;padding:26px;}
+
+.badge{font-family:var(--mono);font-size:10.5px;padding:3px 8px;border-radius:4px;letter-spacing:0.04em;font-weight:600;white-space:nowrap;}
+.sev-info{background:rgba(91,141,214,0.15);color:var(--accent-blue);border:1px solid rgba(91,141,214,0.35);}
+.sev-low{background:rgba(79,179,169,0.15);color:var(--accent-teal);border:1px solid rgba(79,179,169,0.35);}
+.sev-medium{background:rgba(232,163,61,0.15);color:var(--accent-amber);border:1px solid rgba(232,163,61,0.35);}
+.sev-high{background:rgba(217,112,61,0.15);color:var(--accent-orange);border:1px solid rgba(217,112,61,0.35);}
+.sev-critical{background:rgba(193,85,74,0.18);color:var(--accent-red);border:1px solid rgba(193,85,74,0.45);}
+
+.phase-strip{display:flex;gap:0;margin-bottom:22px;border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+.phase-step{flex:1;padding:10px 8px;text-align:center;font-family:var(--mono);font-size:10.5px;letter-spacing:0.04em;color:var(--text-faint);background:var(--panel);border-right:1px solid var(--border);cursor:pointer;}
+.phase-step:last-child{border-right:none;}
+.phase-step.done{background:var(--panel-alt);color:var(--text-dim);}
+.phase-step.current{background:var(--accent-blue);color:#0e1420;font-weight:700;}
+
+.stat-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:24px;}
+.stat-card{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:14px 16px;}
+.stat-num{font-family:var(--mono);font-size:24px;font-weight:700;color:var(--text);}
+.stat-label{font-size:11px;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.06em;margin-top:2px;}
+
+.section-title{font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-faint);margin:0 0 12px;font-weight:600;}
+
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:18px;margin-bottom:16px;}
+
+.field{margin-bottom:12px;}
+.field label{display:block;font-size:11px;color:var(--text-faint);margin-bottom:5px;text-transform:uppercase;letter-spacing:0.05em;}
+.input,.select,.textarea{width:100%;background:var(--panel-alt);border:1px solid var(--border);color:var(--text);padding:9px 11px;border-radius:6px;font-size:13px;}
+.textarea{resize:vertical;min-height:70px;font-family:var(--sans);line-height:1.5;}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+
+.toolbar{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center;}
+.toolbar .input{max-width:260px;}
+.toolbar .select{max-width:170px;}
+
+/* Ledger (timeline signature element) */
+.ledger{position:relative;padding-left:26px;}
+.ledger::before{content:'';position:absolute;left:6px;top:6px;bottom:6px;width:1px;background:var(--border);}
+.ledger-item{position:relative;padding-bottom:20px;}
+.ledger-dot{position:absolute;left:-26px;top:4px;width:11px;height:11px;border-radius:50%;border:2px solid var(--bg);}
+.ledger-row{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;font-family:var(--mono);font-size:12px;color:var(--text-faint);}
+.ledger-time{color:var(--text-dim);}
+.ledger-title{font-family:var(--sans);font-size:14.5px;color:var(--text);font-weight:600;margin:4px 0 4px;}
+.ledger-desc{font-size:13px;color:var(--text-dim);line-height:1.5;margin-bottom:6px;}
+.ledger-tags{display:flex;gap:6px;flex-wrap:wrap;}
+
+.chip{font-family:var(--mono);font-size:10.5px;padding:3px 7px;border-radius:4px;background:var(--panel-alt);border:1px solid var(--border);color:var(--text-dim);}
+.chip.type-hst{color:#8fb4e8;} .chip.type-usr{color:#e8c15b;} .chip.type-ip{color:#4fb3a9;}
+.chip.type-dom{color:#c9a3e8;} .chip.type-hsh{color:#d9703d;} .chip.type-mal{color:#c1554a;}
+.chip.type-net{color:#5b8dd6;} .chip.type-ext{color:#8b93a7;} .chip.type-oth{color:#8b93a7;}
+
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:14px;}
+.card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:6px;}
+.card-name{font-weight:600;font-size:14px;color:var(--text);word-break:break-word;}
+.card-desc{font-size:12.5px;color:var(--text-dim);line-height:1.45;margin:6px 0;}
+.card-meta{display:flex;gap:8px;font-size:11px;color:var(--text-faint);margin-top:8px;font-family:var(--mono);}
+.card-actions{display:flex;justify-content:flex-end;margin-top:8px;}
+
+.checklist{max-height:150px;overflow-y:auto;border:1px solid var(--border);border-radius:6px;padding:8px 10px;background:var(--panel-alt);}
+.checkitem{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:12.5px;color:var(--text-dim);}
+.checkitem input{accent-color:var(--accent-blue);}
+.checklist-empty{font-size:12px;color:var(--text-faint);padding:4px 0;}
+
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:60px 20px;color:var(--text-faint);}
+.empty-state h3{color:var(--text-dim);font-weight:600;font-size:15px;margin:10px 0 6px;}
+.empty-state p{font-size:13px;max-width:340px;line-height:1.5;margin:0 0 16px;}
+
+.full-empty{height:100%;display:flex;align-items:center;justify-content:center;}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(10,12,18,0.65);display:flex;align-items:center;justify-content:center;z-index:50;}
+.modal{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:24px;width:420px;max-width:90vw;}
+.modal h3{margin:0 0 16px;font-size:15px;}
+.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px;}
+
+.text-updated{font-size:11px;color:var(--text-faint);margin-top:8px;font-family:var(--mono);}
+.divider{height:1px;background:var(--border);margin:16px 0;}
+
+::-webkit-scrollbar{width:9px;height:9px;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+
+@media (max-width:760px){
+  .sidebar{width:190px;}
+  .row2,.row3{grid-template-columns:1fr;}
+  .topbar{flex-direction:column;align-items:flex-start;}
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+/* ---------- storage helpers ---------- */
+async function stGet(key){
+  try{ const v = localStorage.getItem('ledger:'+key); return v ? JSON.parse(v) : null; }
+  catch(e){ return null; }
+}
+async function stSet(key, val){
+  try{ localStorage.setItem('ledger:'+key, JSON.stringify(val)); return true; }
+  catch(e){ console.error('storage set failed', key, e); return false; }
+}
+async function stDelete(key){
+  try{ localStorage.removeItem('ledger:'+key); return true; }
+  catch(e){ return false; }
+}
+
+/* ---------- state ---------- */
+const state = {
+  caseList: [],
+  currentCase: null,
+  activeTab: 'overview',
+  loading: true,
+  showNewCaseModal: false,
+  showAddEvent: false,
+  showAddEntity: false,
+  showAddEvidence: false,
+  filters: { timelineText:'', timelineSev:'all', entityText:'', entityType:'all', evidenceText:'' }
+};
+let saveTimer = null;
+
+const ENTITY_TYPES = [
+  {v:'host', l:'Host / Endpoint', tag:'HST'},
+  {v:'user', l:'User Account', tag:'USR'},
+  {v:'ip', l:'IP Address', tag:'IP'},
+  {v:'domain', l:'Domain / URL', tag:'DOM'},
+  {v:'hash', l:'File Hash', tag:'HSH'},
+  {v:'malware', l:'Malware / Tool', tag:'MAL'},
+  {v:'network', l:'Network Asset', tag:'NET'},
+  {v:'external', l:'External Party', tag:'EXT'},
+  {v:'other', l:'Other', tag:'OTH'}
+];
+const EVIDENCE_TYPES = ['Log excerpt','File sample','Memory dump','Disk image','Network capture','Screenshot','Email','Report','Other'];
+const SEVERITIES = ['info','low','medium','high','critical'];
+const PHASES = [
+  {v:'detection', l:'Detection & Analysis'},
+  {v:'containment', l:'Containment'},
+  {v:'eradication', l:'Eradication'},
+  {v:'recovery', l:'Recovery'},
+  {v:'review', l:'Post-Incident Review'}
+];
+const INCIDENT_TYPES = ['Ransomware','Phishing','Data Exfiltration','Unauthorized Access','Malware Infection','Denial of Service','Insider Threat','Business Email Compromise','Other'];
+
+function uid(){ return (crypto.randomUUID ? crypto.randomUUID() : 'id-'+Math.random().toString(36).slice(2)); }
+function nowIso(){ return new Date().toISOString(); }
+function fmtDT(iso){
+  if(!iso) return '-';
+  const d = new Date(iso);
+  if(isNaN(d)) return iso;
+  const p = n => String(n).padStart(2,'0');
+  return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+function fmtDate(iso){
+  if(!iso) return '-';
+  const d = new Date(iso);
+  if(isNaN(d)) return iso;
+  const p = n => String(n).padStart(2,'0');
+  return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`;
+}
+function esc(s){
+  return String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function genCaseCode(openedAt){
+  const d = new Date(openedAt || Date.now());
+  const p = n => String(n).padStart(2,'0');
+  const ymd = `${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}`;
+  const hex = Math.floor(Math.random()*0xffff).toString(16).toUpperCase().padStart(4,'0');
+  return `INC-${ymd}-${hex}`;
+}
+function entityMeta(type){ return ENTITY_TYPES.find(t=>t.v===type) || ENTITY_TYPES[ENTITY_TYPES.length-1]; }
+
+/* ---------- persistence ---------- */
+async function init(){
+  const list = await stGet('case-list');
+  state.caseList = list || [];
+  if(state.caseList.length){
+    await loadCase(state.caseList[0].id);
+  } else {
+    state.loading = false;
+  }
+  render();
+}
+
+async function loadCase(id){
+  const c = await stGet('case:'+id);
+  state.currentCase = c;
+  state.loading = false;
+  state.activeTab = 'overview';
+}
+
+async function saveCaseListNow(){
+  await stSet('case-list', state.caseList);
+}
+async function saveCurrentCaseNow(){
+  if(!state.currentCase) return;
+  await stSet('case:'+state.currentCase.id, state.currentCase);
+}
+function saveCurrentCaseDebounced(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveCurrentCaseNow, 500);
+}
+function syncListEntry(){
+  const c = state.currentCase;
+  if(!c) return;
+  const idx = state.caseList.findIndex(x=>x.id===c.id);
+  const entry = {id:c.id, name:c.name, code:c.code, incidentType:c.incidentType, status:c.status, severity:c.severity, openedAt:c.openedAt};
+  if(idx>-1) state.caseList[idx] = entry; else state.caseList.push(entry);
+}
+
+/* ---------- case actions ---------- */
+async function createCase(data){
+  const id = uid();
+  const openedAt = data.openedAt || nowIso();
+  const c = {
+    id, name: data.name || 'Untitled investigation',
+    code: genCaseCode(openedAt),
+    incidentType: data.incidentType || 'Other',
+    severity: data.severity || 'medium',
+    status: 'detection',
+    openedAt,
+    entities: [], events: [], evidence: [],
+    notes: '', notesUpdatedAt: null
+  };
+  state.currentCase = c;
+  syncListEntry();
+  await saveCurrentCaseNow();
+  await saveCaseListNow();
+  state.showNewCaseModal = false;
+  state.activeTab = 'overview';
+  render();
+}
+
+async function switchCase(id){
+  if(state.currentCase && state.currentCase.id===id) return;
+  state.loading = true; render();
+  await loadCase(id);
+  render();
+}
+
+async function deleteCurrentCase(){
+  if(!state.currentCase) return;
+  if(!confirm('Delete "'+state.currentCase.name+'"? This removes all its entities, timeline events, and evidence. This cannot be undone.')) return;
+  const id = state.currentCase.id;
+  await stDelete('case:'+id);
+  state.caseList = state.caseList.filter(c=>c.id!==id);
+  await saveCaseListNow();
+  if(state.caseList.length){
+    await loadCase(state.caseList[0].id);
+  } else {
+    state.currentCase = null;
+  }
+  render();
+}
+
+function updateCaseMeta(patch){
+  Object.assign(state.currentCase, patch);
+  syncListEntry();
+  saveCurrentCaseDebounced();
+  saveCaseListNow();
+}
+
+/* ---------- timeline ---------- */
+async function addEvent(data){
+  state.currentCase.events.push({
+    id: uid(), timestamp: data.timestamp || nowIso(),
+    title: data.title, description: data.description||'',
+    severity: data.severity||'medium', linked: data.linked||[],
+    createdAt: nowIso()
+  });
+  state.currentCase.events.sort((a,b)=> new Date(b.timestamp) - new Date(a.timestamp));
+  state.showAddEvent = false;
+  await saveCurrentCaseNow();
+  render();
+}
+async function deleteEvent(id){
+  state.currentCase.events = state.currentCase.events.filter(e=>e.id!==id);
+  await saveCurrentCaseNow();
+  render();
+}
+
+/* ---------- entities ---------- */
+async function addEntity(data){
+  state.currentCase.entities.push({
+    id: uid(), type: data.type, name: data.name,
+    description: data.description||'', tags: data.tags||[],
+    createdAt: nowIso()
+  });
+  state.showAddEntity = false;
+  await saveCurrentCaseNow();
+  render();
+}
+async function deleteEntity(id){
+  if(!confirm('Remove this entity? Links to it in the timeline and evidence will be cleared.')) return;
+  state.currentCase.entities = state.currentCase.entities.filter(e=>e.id!==id);
+  state.currentCase.events.forEach(e=> e.linked = e.linked.filter(x=>x!==id));
+  state.currentCase.evidence.forEach(e=> e.linked = e.linked.filter(x=>x!==id));
+  await saveCurrentCaseNow();
+  render();
+}
+
+/* ---------- evidence ---------- */
+async function addEvidence(data){
+  state.currentCase.evidence.push({
+    id: uid(), title: data.title, evType: data.evType||'Other',
+    source: data.source||'', hash: data.hash||'',
+    description: data.description||'', linked: data.linked||[],
+    collectedAt: data.collectedAt || nowIso(), createdAt: nowIso()
+  });
+  state.showAddEvidence = false;
+  await saveCurrentCaseNow();
+  render();
+}
+async function deleteEvidence(id){
+  state.currentCase.evidence = state.currentCase.evidence.filter(e=>e.id!==id);
+  await saveCurrentCaseNow();
+  render();
+}
+
+/* ---------- notes ---------- */
+function updateNotes(val){
+  state.currentCase.notes = val;
+  state.currentCase.notesUpdatedAt = nowIso();
+  saveCurrentCaseDebounced();
+}
+
+/* ---------- icons ---------- */
+const ICONS = {
+  overview: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>',
+  timeline: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>',
+  entities: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="18" cy="7" r="2.3"/><path d="M15.5 13.2c2.3.3 4 2 4.5 4.8"/></svg>',
+  evidence: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 3h9l4 4v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h6"/></svg>',
+  notes: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4h16v16H4z" opacity="0"/><path d="M5 6h14M5 12h14M5 18h9"/></svg>',
+  plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>',
+  trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2m-9 0 1 13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1l1-13"/></svg>'
+};
+
+/* ---------- render ---------- */
+function render(){
+  const root = document.getElementById('root');
+  if(state.loading){
+    root.innerHTML = `<div class="full-empty" style="color:var(--text-faint);font-family:var(--mono);font-size:13px;">loading investigation workspace…</div>`;
+    return;
+  }
+  if(!state.currentCase){
+    root.innerHTML = renderNoCaseScreen();
+    bindGlobalNoCaseHandlers();
+    return;
+  }
+  root.innerHTML = `
+    <div class="app">
+      ${renderSidebar()}
+      <div class="main">
+        ${renderTopbar()}
+        <div class="content">${renderTabContent()}</div>
+      </div>
+    </div>
+    ${state.showNewCaseModal ? renderNewCaseModal() : ''}
+  `;
+  bindHandlers();
+}
+
+function renderNoCaseScreen(){
+  return `
+  <div class="full-empty">
+    <div class="empty-state" style="max-width:420px;">
+      <div style="font-family:var(--mono);color:var(--accent-amber);font-size:13px;letter-spacing:0.1em;margin-bottom:6px;">NO ACTIVE INVESTIGATION</div>
+      <h3>Open an incident to start the ledger</h3>
+      <p>Track affected systems and accounts, log the timeline as you find it, and file evidence with a chain of custody you can hand off or write up later.</p>
+      <button class="btn btn-primary" id="btn-first-case">Start new investigation</button>
+    </div>
+  </div>`;
+}
+function bindGlobalNoCaseHandlers(){
+  const b = document.getElementById('btn-first-case');
+  if(b) b.onclick = () => { state.showNewCaseModal = true; renderWithModalOnly(); };
+}
+function renderWithModalOnly(){
+  const root = document.getElementById('root');
+  root.innerHTML = renderNoCaseScreen() + renderNewCaseModal();
+  bindGlobalNoCaseHandlers();
+  bindModalHandlers();
+}
+
+function renderSidebar(){
+  const c = state.currentCase;
+  const tabs = [
+    {k:'overview', l:'Overview'},
+    {k:'timeline', l:'Timeline', count:c.events.length},
+    {k:'entities', l:'Entities', count:c.entities.length},
+    {k:'evidence', l:'Evidence', count:c.evidence.length},
+    {k:'notes', l:'Notes'}
+  ];
+  return `
+  <div class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">LEDGER<span>·</span>IR</div>
+      <div class="brand-sub">incident investigation workspace</div>
+    </div>
+    <div class="case-switcher">
+      <label>Investigation</label>
+      <select class="case-select" id="case-select">
+        ${state.caseList.map(cs => `<option value="${cs.id}" ${cs.id===c.id?'selected':''}>${esc(cs.name)}</option>`).join('')}
+      </select>
+      <button class="new-case-btn" id="btn-new-case">+ New investigation</button>
+    </div>
+    <div class="nav">
+      ${tabs.map(t => `
+        <button class="nav-item ${state.activeTab===t.k?'active':''}" data-tab="${t.k}">
+          ${ICONS[t.k]}<span>${t.l}</span>
+          ${t.count!==undefined ? `<span class="nav-count">${t.count}</span>`:''}
+        </button>
+      `).join('')}
+    </div>
+    <div class="sidebar-footer">
+      ${c.code}<br>Opened ${fmtDate(c.openedAt)}
+    </div>
+  </div>`;
+}
+
+function renderTopbar(){
+  const c = state.currentCase;
+  return `
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="case-code">${c.code} · ${esc(c.incidentType)}</div>
+      <div class="case-title">${esc(c.name)}</div>
+    </div>
+    <div class="topbar-right">
+      <span class="badge sev-${c.severity}">${c.severity.toUpperCase()}</span>
+      <button class="btn btn-sm" id="btn-export">Export report</button>
+      <button class="btn btn-sm btn-danger" id="btn-delete-case">Delete</button>
+    </div>
+  </div>`;
+}
+
+function renderTabContent(){
+  const c = state.currentCase;
+  if(state.activeTab==='overview') return renderOverview(c);
+  if(state.activeTab==='timeline') return renderTimeline(c);
+  if(state.activeTab==='entities') return renderEntities(c);
+  if(state.activeTab==='evidence') return renderEvidenceTab(c);
+  if(state.activeTab==='notes') return renderNotes(c);
+  return '';
+}
+
+function renderOverview(c){
+  const sevCounts = SEVERITIES.map(s => ({s, n: c.events.filter(e=>e.severity===s).length}));
+  const recent = c.events.slice(0,5);
+  return `
+    <div class="section-title">NIST lifecycle phase</div>
+    <div class="phase-strip">
+      ${PHASES.map((p,i) => {
+        const curIdx = PHASES.findIndex(x=>x.v===c.status);
+        const cls = p.v===c.status ? 'current' : (i<curIdx ? 'done' : '');
+        return `<div class="phase-step ${cls}" data-phase="${p.v}">${p.l}</div>`;
+      }).join('')}
+    </div>
+
+    <div class="stat-row">
+      <div class="stat-card"><div class="stat-num">${c.entities.length}</div><div class="stat-label">Entities tracked</div></div>
+      <div class="stat-card"><div class="stat-num">${c.events.length}</div><div class="stat-label">Timeline entries</div></div>
+      <div class="stat-card"><div class="stat-num">${c.evidence.length}</div><div class="stat-label">Evidence items</div></div>
+      <div class="stat-card"><div class="stat-num">${sevCounts.find(x=>x.s==='critical').n + sevCounts.find(x=>x.s==='high').n}</div><div class="stat-label">High / critical events</div></div>
+    </div>
+
+    <div class="panel">
+      <div class="section-title">Investigation details</div>
+      <div class="row3">
+        <div class="field"><label>Incident type</label>
+          <select class="select" id="ov-type">
+            ${INCIDENT_TYPES.map(t=>`<option ${t===c.incidentType?'selected':''}>${t}</option>`).join('')}
+          </select>
+        </div>
+        <div class="field"><label>Severity</label>
+          <select class="select" id="ov-severity">
+            ${SEVERITIES.map(s=>`<option value="${s}" ${s===c.severity?'selected':''}>${s.charAt(0).toUpperCase()+s.slice(1)}</option>`).join('')}
+          </select>
+        </div>
+        <div class="field"><label>Case name</label>
+          <input class="input" id="ov-name" value="${esc(c.name)}">
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title">Most recent activity</div>
+    ${recent.length ? `<div class="ledger">${recent.map(e=>renderLedgerItem(e,c,true)).join('')}</div>`
+      : `<div class="empty-state" style="padding:24px 0;"><p>No timeline entries yet. Log what happened and when from the Timeline tab.</p></div>`}
+  `;
+}
+
+function renderLedgerItem(e, c, compact){
+  const linkedEntities = e.linked.map(id => c.entities.find(x=>x.id===id)).filter(Boolean);
+  return `
+  <div class="ledger-item">
+    <div class="ledger-dot" style="background:var(--accent-${e.severity==='info'?'blue':e.severity==='low'?'teal':e.severity==='medium'?'amber':e.severity==='high'?'orange':'red'});"></div>
+    <div class="ledger-row">
+      <span class="ledger-time">${fmtDT(e.timestamp)}</span>
+      <span class="badge sev-${e.severity}">${e.severity.toUpperCase()}</span>
+    </div>
+    <div class="ledger-title">${esc(e.title)}</div>
+    ${e.description ? `<div class="ledger-desc">${esc(e.description)}</div>` : ''}
+    ${linkedEntities.length ? `<div class="ledger-tags">${linkedEntities.map(en=>`<span class="chip type-${entityMeta(en.type).tag.toLowerCase()}">${entityMeta(en.type).tag} · ${esc(en.name)}</span>`).join('')}</div>` : ''}
+    ${!compact ? `<div class="card-actions"><button class="btn btn-ghost btn-sm" data-del-event="${e.id}">${ICONS.trash} remove</button></div>` : ''}
+  </div>`;
+}
+
+function renderTimeline(c){
+  const f = state.filters;
+  let events = c.events.filter(e =>
+    (f.timelineSev==='all' || e.severity===f.timelineSev) &&
+    (!f.timelineText || (e.title+' '+e.description).toLowerCase().includes(f.timelineText.toLowerCase()))
+  );
+  return `
+    <div class="toolbar">
+      <input class="input" id="filter-timeline-text" placeholder="Search timeline…" value="${esc(f.timelineText)}">
+      <select class="select" id="filter-timeline-sev">
+        <option value="all" ${f.timelineSev==='all'?'selected':''}>All severities</option>
+        ${SEVERITIES.map(s=>`<option value="${s}" ${f.timelineSev===s?'selected':''}>${s.charAt(0).toUpperCase()+s.slice(1)}</option>`).join('')}
+      </select>
+      <button class="btn btn-primary" id="btn-toggle-add-event" style="margin-left:auto;">${ICONS.plus} Log event</button>
+    </div>
+    ${state.showAddEvent ? renderAddEventForm(c) : ''}
+    ${events.length ? `<div class="ledger">${events.map(e=>renderLedgerItem(e,c,false)).join('')}</div>`
+      : `<div class="empty-state"><h3>No matching events</h3><p>${c.events.length ? 'Try clearing filters.' : 'Start the chain of custody - log the first thing you observed, in the order you found it.'}</p></div>`}
+  `;
+}
+
+function renderAddEventForm(c){
+  return `
+  <div class="panel">
+    <div class="section-title">Log an event</div>
+    <div class="row2">
+      <div class="field"><label>When</label><input class="input" type="datetime-local" id="ev-time"></div>
+      <div class="field"><label>Severity</label>
+        <select class="select" id="ev-severity">
+          ${SEVERITIES.map(s=>`<option value="${s}" ${s==='medium'?'selected':''}>${s.charAt(0).toUpperCase()+s.slice(1)}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+    <div class="field"><label>What happened</label><input class="input" id="ev-title" placeholder="e.g. EDR flagged process injection on host-victim-03"></div>
+    <div class="field"><label>Details</label><textarea class="textarea" id="ev-desc" placeholder="Context, source of observation, analyst notes…"></textarea></div>
+    <div class="field"><label>Linked entities</label>${renderEntityChecklist(c, 'ev-linked')}</div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="ev-cancel">Cancel</button>
+      <button class="btn btn-primary" id="ev-submit">Add to timeline</button>
+    </div>
+  </div>`;
+}
+
+function renderEntityChecklist(c, name){
+  if(!c.entities.length) return `<div class="checklist"><div class="checklist-empty">No entities yet - add one from the Entities tab to link it here.</div></div>`;
+  return `<div class="checklist">${c.entities.map(en => `
+    <label class="checkitem"><input type="checkbox" name="${name}" value="${en.id}"> <span class="chip type-${entityMeta(en.type).tag.toLowerCase()}">${entityMeta(en.type).tag}</span> ${esc(en.name)}</label>
+  `).join('')}</div>`;
+}
+
+function renderEntities(c){
+  const f = state.filters;
+  let entities = c.entities.filter(e =>
+    (f.entityType==='all' || e.type===f.entityType) &&
+    (!f.entityText || (e.name+' '+e.description).toLowerCase().includes(f.entityText.toLowerCase()))
+  );
+  return `
+    <div class="toolbar">
+      <input class="input" id="filter-entity-text" placeholder="Search entities…" value="${esc(f.entityText)}">
+      <select class="select" id="filter-entity-type">
+        <option value="all" ${f.entityType==='all'?'selected':''}>All types</option>
+        ${ENTITY_TYPES.map(t=>`<option value="${t.v}" ${f.entityType===t.v?'selected':''}>${t.l}</option>`).join('')}
+      </select>
+      <button class="btn btn-primary" id="btn-toggle-add-entity" style="margin-left:auto;">${ICONS.plus} Add entity</button>
+    </div>
+    ${state.showAddEntity ? renderAddEntityForm() : ''}
+    ${entities.length ? `<div class="card-grid">${entities.map(e=>renderEntityCard(e,c)).join('')}</div>`
+      : `<div class="empty-state"><h3>No matching entities</h3><p>${c.entities.length ? 'Try clearing filters.' : 'Add the hosts, accounts, IPs, or indicators involved so you can link them to events and evidence.'}</p></div>`}
+  `;
+}
+
+function renderAddEntityForm(){
+  return `
+  <div class="panel">
+    <div class="section-title">Add entity</div>
+    <div class="row2">
+      <div class="field"><label>Type</label>
+        <select class="select" id="en-type">${ENTITY_TYPES.map(t=>`<option value="${t.v}">${t.l}</option>`).join('')}</select>
+      </div>
+      <div class="field"><label>Name / identifier</label><input class="input" id="en-name" placeholder="e.g. host-victim-03, 10.2.4.19, jsmith@corp.local"></div>
+    </div>
+    <div class="field"><label>Notes</label><textarea class="textarea" id="en-desc" placeholder="Role, ownership, why it's relevant…"></textarea></div>
+    <div class="field"><label>Tags (comma separated)</label><input class="input" id="en-tags" placeholder="e.g. dmz, finance-team, patient-zero"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="en-cancel">Cancel</button>
+      <button class="btn btn-primary" id="en-submit">Add entity</button>
+    </div>
+  </div>`;
+}
+
+function renderEntityCard(e, c){
+  const evCount = c.events.filter(ev=>ev.linked.includes(e.id)).length;
+  const exCount = c.evidence.filter(ev=>ev.linked.includes(e.id)).length;
+  const meta = entityMeta(e.type);
+  return `
+  <div class="card">
+    <div class="card-head">
+      <div><span class="chip type-${meta.tag.toLowerCase()}">${meta.tag}</span></div>
+      <button class="btn btn-ghost btn-sm" data-del-entity="${e.id}">${ICONS.trash}</button>
+    </div>
+    <div class="card-name">${esc(e.name)}</div>
+    ${e.description ? `<div class="card-desc">${esc(e.description)}</div>` : ''}
+    ${e.tags && e.tags.length ? `<div class="ledger-tags" style="margin-top:6px;">${e.tags.map(t=>`<span class="chip">${esc(t)}</span>`).join('')}</div>` : ''}
+    <div class="card-meta"><span>${evCount} event${evCount===1?'':'s'}</span><span>·</span><span>${exCount} evidence</span></div>
+  </div>`;
+}
+
+function renderEvidenceTab(c){
+  const f = state.filters;
+  let evidence = c.evidence.filter(e =>
+    !f.evidenceText || (e.title+' '+e.description+' '+e.source+' '+e.hash).toLowerCase().includes(f.evidenceText.toLowerCase())
+  );
+  return `
+    <div class="toolbar">
+      <input class="input" id="filter-evidence-text" placeholder="Search evidence…" value="${esc(f.evidenceText)}">
+      <button class="btn btn-primary" id="btn-toggle-add-evidence" style="margin-left:auto;">${ICONS.plus} Add evidence</button>
+    </div>
+    ${state.showAddEvidence ? renderAddEvidenceForm(c) : ''}
+    ${evidence.length ? evidence.map(e=>renderEvidenceRow(e,c)).join('') :
+      `<div class="empty-state"><h3>No evidence logged</h3><p>${c.evidence.length? 'Try clearing filters.' : 'File the artifacts you collect - logs, samples, captures - with source and collection time for chain of custody.'}</p></div>`}
+  `;
+}
+
+function renderAddEvidenceForm(c){
+  return `
+  <div class="panel">
+    <div class="section-title">Add evidence</div>
+    <div class="row2">
+      <div class="field"><label>Title</label><input class="input" id="ex-title" placeholder="e.g. auth.log excerpt from host-victim-03"></div>
+      <div class="field"><label>Type</label><select class="select" id="ex-type">${EVIDENCE_TYPES.map(t=>`<option>${t}</option>`).join('')}</select></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>Source</label><input class="input" id="ex-source" placeholder="e.g. SIEM export, disk image, analyst capture"></div>
+      <div class="field"><label>Collected at</label><input class="input" type="datetime-local" id="ex-time"></div>
+    </div>
+    <div class="field"><label>Hash / reference (optional)</label><input class="input" id="ex-hash" placeholder="SHA256 or file/ticket reference"></div>
+    <div class="field"><label>Description</label><textarea class="textarea" id="ex-desc" placeholder="What it shows and why it matters…"></textarea></div>
+    <div class="field"><label>Linked entities</label>${renderEntityChecklist(c, 'ex-linked')}</div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="ex-cancel">Cancel</button>
+      <button class="btn btn-primary" id="ex-submit">Add evidence</button>
+    </div>
+  </div>`;
+}
+
+function renderEvidenceRow(e, c){
+  const linked = e.linked.map(id=>c.entities.find(x=>x.id===id)).filter(Boolean);
+  return `
+  <div class="panel" style="margin-bottom:10px;">
+    <div class="card-head">
+      <div>
+        <div class="case-code">${esc(e.evType)} · collected ${fmtDT(e.collectedAt)}</div>
+        <div class="card-name" style="margin-top:2px;">${esc(e.title)}</div>
+      </div>
+      <button class="btn btn-ghost btn-sm" data-del-evidence="${e.id}">${ICONS.trash}</button>
+    </div>
+    ${e.source ? `<div class="card-desc"><strong style="color:var(--text-dim);">Source:</strong> ${esc(e.source)}</div>` : ''}
+    ${e.hash ? `<div class="card-desc" style="font-family:var(--mono);word-break:break-all;"><strong style="color:var(--text-dim);font-family:var(--sans);">Ref:</strong> ${esc(e.hash)}</div>` : ''}
+    ${e.description ? `<div class="card-desc">${esc(e.description)}</div>` : ''}
+    ${linked.length ? `<div class="ledger-tags" style="margin-top:6px;">${linked.map(en=>`<span class="chip type-${entityMeta(en.type).tag.toLowerCase()}">${entityMeta(en.type).tag} · ${esc(en.name)}</span>`).join('')}</div>` : ''}
+  </div>`;
+}
+
+function renderNotes(c){
+  return `
+    <div class="section-title">Investigation notes</div>
+    <div class="panel">
+      <textarea class="textarea" id="notes-area" style="min-height:420px;font-family:var(--mono);font-size:13px;" placeholder="Free-form analyst notes, hypotheses, open questions, follow-ups…">${esc(c.notes||'')}</textarea>
+      <div class="text-updated">${c.notesUpdatedAt ? 'Last edited '+fmtDT(c.notesUpdatedAt) : 'Not edited yet'}</div>
+    </div>
+  `;
+}
+
+function renderNewCaseModal(){
+  return `
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal">
+      <h3>Start new investigation</h3>
+      <div class="field"><label>Case name</label><input class="input" id="nc-name" placeholder="e.g. Suspicious login activity - corp VPN"></div>
+      <div class="row2">
+        <div class="field"><label>Incident type</label><select class="select" id="nc-type">${INCIDENT_TYPES.map(t=>`<option>${t}</option>`).join('')}</select></div>
+        <div class="field"><label>Initial severity</label><select class="select" id="nc-severity">${SEVERITIES.map(s=>`<option value="${s}" ${s==='medium'?'selected':''}>${s.charAt(0).toUpperCase()+s.slice(1)}</option>`).join('')}</select></div>
+      </div>
+      <div class="field"><label>Opened</label><input class="input" type="date" id="nc-date" value="${new Date().toISOString().slice(0,10)}"></div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="nc-cancel">Cancel</button>
+        <button class="btn btn-primary" id="nc-submit">Create investigation</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ---------- event binding ---------- */
+function bindHandlers(){
+  const c = state.currentCase;
+
+  const caseSelect = document.getElementById('case-select');
+  if(caseSelect) caseSelect.onchange = e => switchCase(e.target.value);
+  const newCaseBtn = document.getElementById('btn-new-case');
+  if(newCaseBtn) newCaseBtn.onclick = () => { state.showNewCaseModal = true; render(); };
+
+  document.querySelectorAll('.nav-item').forEach(btn => {
+    btn.onclick = () => { state.activeTab = btn.getAttribute('data-tab'); state.showAddEvent=state.showAddEntity=state.showAddEvidence=false; render(); };
+  });
+
+  document.querySelectorAll('.phase-step').forEach(el => {
+    el.onclick = () => { updateCaseMeta({status: el.getAttribute('data-phase')}); render(); };
+  });
+
+  const exportBtn = document.getElementById('btn-export');
+  if(exportBtn) exportBtn.onclick = exportReport;
+  const delCaseBtn = document.getElementById('btn-delete-case');
+  if(delCaseBtn) delCaseBtn.onclick = deleteCurrentCase;
+
+  if(state.activeTab==='overview'){
+    const nameEl = document.getElementById('ov-name');
+    if(nameEl) nameEl.onblur = () => updateCaseMeta({name: nameEl.value || 'Untitled investigation'});
+    const typeEl = document.getElementById('ov-type');
+    if(typeEl) typeEl.onchange = () => updateCaseMeta({incidentType: typeEl.value});
+    const sevEl = document.getElementById('ov-severity');
+    if(sevEl) sevEl.onchange = () => { updateCaseMeta({severity: sevEl.value}); render(); };
+  }
+
+  if(state.activeTab==='timeline'){
+    bindFilterInput('filter-timeline-text','timelineText');
+    bindFilterInput('filter-timeline-sev','timelineSev');
+    const toggle = document.getElementById('btn-toggle-add-event');
+    if(toggle) toggle.onclick = () => { state.showAddEvent = !state.showAddEvent; render(); };
+    const cancel = document.getElementById('ev-cancel');
+    if(cancel) cancel.onclick = () => { state.showAddEvent=false; render(); };
+    const submit = document.getElementById('ev-submit');
+    if(submit) submit.onclick = () => {
+      const title = document.getElementById('ev-title').value.trim();
+      if(!title){ alert('Add a short description of what happened.'); return; }
+      const timeVal = document.getElementById('ev-time').value;
+      const linked = Array.from(document.querySelectorAll('input[name="ev-linked"]:checked')).map(i=>i.value);
+      addEvent({
+        title, description: document.getElementById('ev-desc').value.trim(),
+        severity: document.getElementById('ev-severity').value,
+        timestamp: timeVal ? new Date(timeVal).toISOString() : nowIso(),
+        linked
+      });
+    };
+    document.querySelectorAll('[data-del-event]').forEach(b => b.onclick = () => deleteEvent(b.getAttribute('data-del-event')));
+  }
+
+  if(state.activeTab==='entities'){
+    bindFilterInput('filter-entity-text','entityText');
+    bindFilterInput('filter-entity-type','entityType');
+    const toggle = document.getElementById('btn-toggle-add-entity');
+    if(toggle) toggle.onclick = () => { state.showAddEntity = !state.showAddEntity; render(); };
+    const cancel = document.getElementById('en-cancel');
+    if(cancel) cancel.onclick = () => { state.showAddEntity=false; render(); };
+    const submit = document.getElementById('en-submit');
+    if(submit) submit.onclick = () => {
+      const name = document.getElementById('en-name').value.trim();
+      if(!name){ alert('Give the entity a name or identifier.'); return; }
+      const tags = document.getElementById('en-tags').value.split(',').map(t=>t.trim()).filter(Boolean);
+      addEntity({
+        type: document.getElementById('en-type').value, name,
+        description: document.getElementById('en-desc').value.trim(), tags
+      });
+    };
+    document.querySelectorAll('[data-del-entity]').forEach(b => b.onclick = () => deleteEntity(b.getAttribute('data-del-entity')));
+  }
+
+  if(state.activeTab==='evidence'){
+    bindFilterInput('filter-evidence-text','evidenceText');
+    const toggle = document.getElementById('btn-toggle-add-evidence');
+    if(toggle) toggle.onclick = () => { state.showAddEvidence = !state.showAddEvidence; render(); };
+    const cancel = document.getElementById('ex-cancel');
+    if(cancel) cancel.onclick = () => { state.showAddEvidence=false; render(); };
+    const submit = document.getElementById('ex-submit');
+    if(submit) submit.onclick = () => {
+      const title = document.getElementById('ex-title').value.trim();
+      if(!title){ alert('Give the evidence item a title.'); return; }
+      const timeVal = document.getElementById('ex-time').value;
+      const linked = Array.from(document.querySelectorAll('input[name="ex-linked"]:checked')).map(i=>i.value);
+      addEvidence({
+        title, evType: document.getElementById('ex-type').value,
+        source: document.getElementById('ex-source').value.trim(),
+        hash: document.getElementById('ex-hash').value.trim(),
+        description: document.getElementById('ex-desc').value.trim(),
+        collectedAt: timeVal ? new Date(timeVal).toISOString() : nowIso(),
+        linked
+      });
+    };
+    document.querySelectorAll('[data-del-evidence]').forEach(b => b.onclick = () => deleteEvidence(b.getAttribute('data-del-evidence')));
+  }
+
+  if(state.activeTab==='notes'){
+    const area = document.getElementById('notes-area');
+    if(area) area.oninput = () => updateNotes(area.value);
+  }
+
+  if(state.showNewCaseModal) bindModalHandlers();
+}
+
+function bindFilterInput(id, key){
+  const el = document.getElementById(id);
+  if(!el) return;
+  const evt = (el.tagName==='SELECT') ? 'onchange' : 'oninput';
+  el[evt] = () => { state.filters[key] = el.value; render(); };
+}
+
+function bindModalHandlers(){
+  const overlay = document.getElementById('modal-overlay');
+  if(overlay) overlay.onclick = (e) => { if(e.target===overlay){ state.showNewCaseModal=false; render(); } };
+  const cancel = document.getElementById('nc-cancel');
+  if(cancel) cancel.onclick = () => { state.showNewCaseModal=false; render(); };
+  const submit = document.getElementById('nc-submit');
+  if(submit) submit.onclick = () => {
+    const name = document.getElementById('nc-name').value.trim();
+    const dateVal = document.getElementById('nc-date').value;
+    createCase({
+      name: name || 'Untitled investigation',
+      incidentType: document.getElementById('nc-type').value,
+      severity: document.getElementById('nc-severity').value,
+      openedAt: dateVal ? new Date(dateVal).toISOString() : nowIso()
+    });
+  };
+}
+
+/* ---------- export ---------- */
+function exportReport(){
+  const c = state.currentCase;
+  const lines = [];
+  lines.push(`# ${c.name}`);
+  lines.push(`${c.code} · ${c.incidentType} · Severity: ${c.severity.toUpperCase()} · Phase: ${PHASES.find(p=>p.v===c.status).l}`);
+  lines.push(`Opened: ${fmtDate(c.openedAt)}`);
+  lines.push('');
+  lines.push('## Timeline');
+  [...c.events].sort((a,b)=>new Date(a.timestamp)-new Date(b.timestamp)).forEach(e => {
+    const linked = e.linked.map(id=>c.entities.find(x=>x.id===id)).filter(Boolean).map(en=>en.name).join(', ');
+    lines.push(`- **${fmtDT(e.timestamp)}** [${e.severity.toUpperCase()}] ${e.title}${e.description?' - '+e.description:''}${linked?' (Linked: '+linked+')':''}`);
+  });
+  lines.push('');
+  lines.push('## Entities');
+  c.entities.forEach(e => lines.push(`- [${entityMeta(e.type).tag}] ${e.name}${e.description?' - '+e.description:''}${e.tags&&e.tags.length?' (Tags: '+e.tags.join(', ')+')':''}`));
+  lines.push('');
+  lines.push('## Evidence');
+  c.evidence.forEach(e => lines.push(`- **${e.title}** (${e.evType}, collected ${fmtDT(e.collectedAt)})${e.source?' - Source: '+e.source:''}${e.hash?' - Ref: '+e.hash:''}${e.description?'\\n  '+e.description:''}`));
+  lines.push('');
+  lines.push('## Notes');
+  lines.push(c.notes || '_No notes recorded._');
+
+  const blob = new Blob([lines.join('\n')], {type:'text/markdown'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${c.code}-report.md`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+init();
+</script>
+</body>
+</html>

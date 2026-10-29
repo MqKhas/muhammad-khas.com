@@ -25,10 +25,12 @@ jobs:
           role-to-assume: ${{ vars.AWS_ROLE_ARN }}
           aws-region: ${{ vars.AWS_REGION }}
 
-      # Only website files go up. Nothing already in the bucket is deleted.
+      # Only website files go up. --delete also removes website files from the
+      # bucket that no longer exist in the repo (e.g. a deleted or renamed page).
+      # Bucket files that don't match the include list below are left alone.
       - name: Upload site to S3
         run: |
-          aws s3 sync . "s3://${{ vars.S3_BUCKET }}" \
+          aws s3 sync . "s3://${{ vars.S3_BUCKET }}" --delete \
             --exclude "*" \
             --include "*.html" --include "*.css" --include "*.js" \
             --include "*.png" --include "*.jpg" --include "*.svg" \

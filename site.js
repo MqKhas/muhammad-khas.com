@@ -4,6 +4,7 @@
   2. Typing animation for the name on the home page
   3. Typewriter reveal for text as it scrolls into view
   4. Tab underline that slides from the last page's tab to this one
+  5. Work / Personal / Coursework filter on the Projects page
 */
 
 // Runs first so the typewriter types the current year, not the fallback
@@ -12,13 +13,23 @@ document.querySelectorAll('.year').forEach(function(el){
   el.textContent = new Date().getFullYear();
 });
 
+// The typing animations only play the first time a page is opened during a
+// visit. Coming back to it (same tab) shows the text right away. Storage can
+// be blocked, in which case it just types every time like before.
+var alreadyTyped = false;
+try{
+  var typedKey = 'mk-typed:' + location.pathname;
+  alreadyTyped = sessionStorage.getItem(typedKey) === '1';
+  sessionStorage.setItem(typedKey, '1');
+}catch(e){}
+
 (function(){
   var el = document.getElementById('hero-name');
   if(!el) return;
   var fullText = el.textContent;
   var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  if(reduceMotion){
+  if(reduceMotion || alreadyTyped){
     return; // leave the static text as-is
   }
 
@@ -136,13 +147,19 @@ document.querySelectorAll('.year').forEach(function(el){
     '.timeline-role',
     '.timeline-org',
     '.timeline-story',
-    '.case-id',
-    '.case-title',
+    '.case-card',
     '.contact-buttons a',
+    '.quest',
     'footer .wrap'
   ].join(', ');
 
   var elements = Array.prototype.slice.call(document.querySelectorAll(selector));
+
+  // Already typed once this visit: just show everything
+  if(alreadyTyped){
+    elements.forEach(function(el){ el.style.opacity = '1'; });
+    return;
+  }
 
   if('IntersectionObserver' in window && elements.length){
     var visibleResolvers = [];
@@ -211,4 +228,21 @@ document.querySelectorAll('.year').forEach(function(el){
     document.fonts.ready.then(function(){ moveIndicator(current); });
   }
   window.addEventListener('resize', function(){ moveIndicator(current); });
+})();
+
+(function(){
+  var filter = document.getElementById('case-filter');
+  if(!filter) return;
+  var buttons = Array.prototype.slice.call(filter.querySelectorAll('button'));
+  var cards = Array.prototype.slice.call(document.querySelectorAll('.case-card'));
+  filter.addEventListener('click', function(e){
+    var btn = e.target.closest('button');
+    if(!btn) return;
+    var kind = btn.getAttribute('data-filter');
+    buttons.forEach(function(b){ b.setAttribute('aria-pressed', b === btn ? 'true' : 'false'); });
+    cards.forEach(function(card){
+      card.hidden = kind !== 'all' && card.getAttribute('data-kind') !== kind;
+      if(!card.hidden) card.style.opacity = '1'; // don't leave a filtered-in card waiting on the typewriter
+    });
+  });
 })();

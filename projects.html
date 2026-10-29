@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Projects — Muhammad Khas</title>
+<title>Projects - Muhammad Khas</title>
 <script>document.documentElement.classList.add('js');</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -35,43 +35,105 @@
     </div>
 
     <!--
-      HOW TO ADD A NEW PROJECT (CASE-05):
-      1. Copy case-01.html, rename it case-05.html, and replace the title,
-         .post-meta line, and the text inside .post-body.
+      HOW TO ADD A NEW PROJECT (CASE-13):
+      1. Copy the newest case page (e.g. case-12.html), rename it case-13.html,
+         and replace the title, .section-tag, .post-meta line, and the text
+         inside .post-body. Titles use Title Case: "Name - Short Description".
+         Use a plain "-" (never an em dash).
       2. Copy the card below, remove the comment markers, and paste it as the
-         FIRST card inside .case-grid (newest goes on top).
+         FIRST card inside .case-grid. Cases are numbered oldest to newest,
+         and the newest (highest number) goes on top.
+      3. Set data-kind (used by the filter buttons) and the label to one of:
+           work     / Work        (something you did for a job)
+           personal / Personal    (something you built to learn)
+           course   / Coursework  (school)
 
-      <a class="case-card" href="case-05.html">
-        <span class="case-id">CASE-05</span>
-        <span class="case-title">Project title goes here</span>
+      <a class="case-card" href="case-13.html" data-kind="personal">
+        <span class="case-id">CASE-13 <span class="case-kind">// Personal</span></span>
+        <span class="case-title">Project Name - Short Description</span>
         <span class="case-summary">One or two sentences about the project.</span>
         <span class="case-more">Read the write-up ›</span>
       </a>
     -->
 
+    <div class="case-filter" id="case-filter" role="group" aria-label="Filter projects">
+      <button type="button" data-filter="all" aria-pressed="true">All</button>
+      <button type="button" data-filter="work" aria-pressed="false">Work</button>
+      <button type="button" data-filter="personal" aria-pressed="false">Personal</button>
+      <button type="button" data-filter="course" aria-pressed="false">Coursework</button>
+    </div>
+
     <div class="case-grid">
-      <a class="case-card" href="case-04.html">
-        <span class="case-id">CASE-04</span>
-        <span class="case-title">Account takeover detection quality fix</span>
+      <a class="case-card" href="case-12.html" data-kind="personal">
+        <span class="case-id">CASE-12 <span class="case-kind">// Personal</span></span>
+        <span class="case-title">Khas Tracker - A Private, Encrypted Life Tracker</span>
+        <span class="case-summary">An invite-only app on AWS where everything is encrypted on the phone, so the server can't read it.</span>
+        <span class="case-more">Read the write-up ›</span>
+      </a>
+      <a class="case-card" href="case-11.html" data-kind="personal">
+        <span class="case-id">CASE-11 <span class="case-kind">// Personal</span></span>
+        <span class="case-title">Spam Cleanup - A Gmail and Outlook Setup Guide</span>
+        <span class="case-summary">A three-tier system that clears junk automatically without deleting anything you actually want.</span>
+        <span class="case-more">Read the write-up ›</span>
+      </a>
+      <a class="case-card" href="case-10.html" data-kind="personal">
+        <span class="case-id">CASE-10 <span class="case-kind">// Personal</span></span>
+        <span class="case-title">Incident Ledger - An Investigation Tracker</span>
+        <span class="case-summary">A case notebook for incidents: timeline, entities, evidence, and notes, organized by response phase. Try it in the post.</span>
+        <span class="case-more">Read the write-up ›</span>
+      </a>
+      <a class="case-card" href="case-09.html" data-kind="personal">
+        <span class="case-id">CASE-09 <span class="case-kind">// Personal</span></span>
+        <span class="case-title">Header Forensics - An Email Header Analyzer</span>
+        <span class="case-summary">Paste raw email headers and see who really sent it, SPF/DKIM/DMARC results, and every hop along the way. Try it in the post.</span>
+        <span class="case-more">Read the write-up ›</span>
+      </a>
+      <a class="case-card" href="case-08.html" data-kind="work">
+        <span class="case-id">CASE-08 <span class="case-kind">// Work</span></span>
+        <span class="case-title">Account Takeover Alerts - Detection Quality Fix</span>
         <span class="case-summary">Customers were alerted on multiple account takeovers when only one valid account existed. My escalation report led to a tracked product fix.</span>
         <span class="case-more">Read the write-up ›</span>
       </a>
-      <a class="case-card" href="case-03.html">
-        <span class="case-id">CASE-03</span>
-        <span class="case-title">Alert triage dashboard workflow fix</span>
+      <a class="case-card" href="case-07.html" data-kind="work">
+        <span class="case-id">CASE-07 <span class="case-kind">// Work</span></span>
+        <span class="case-title">Triage Dashboard - Alert Workflow Fix</span>
         <span class="case-summary">A confirmation pop-up sat too close to the "Alert Customer" button. My improvement request got it moved and changed.</span>
         <span class="case-more">Read the write-up ›</span>
       </a>
-      <a class="case-card" href="case-02.html">
-        <span class="case-id">CASE-02</span>
-        <span class="case-title">Triage metrics &amp; collaboration reform</span>
+      <a class="case-card" href="case-06.html" data-kind="work">
+        <span class="case-id">CASE-06 <span class="case-kind">// Work</span></span>
+        <span class="case-title">Triage Metrics - Collaboration Reform</span>
         <span class="case-summary">Hourly metrics punished analysts for helping each other. I changed the hand-off procedure so no events get left behind.</span>
         <span class="case-more">Read the write-up ›</span>
       </a>
-      <a class="case-card" href="case-01.html">
-        <span class="case-id">CASE-01</span>
-        <span class="case-title">Practice in Security — hardened LAMP environment</span>
+      <a class="case-card" href="case-05.html" data-kind="course">
+        <span class="case-id">CASE-05 <span class="case-kind">// Coursework</span></span>
+        <span class="case-title">Future Proofing - Modernizing a Small CPA Firm</span>
+        <span class="case-summary">Capstone: AWS WorkSpaces, an Amazon Lex booking bot, Stripe, and a website. I was the main point of contact with the client.</span>
+        <span class="case-more">Read the write-up ›</span>
+      </a>
+      <a class="case-card" href="case-04.html" data-kind="course">
+        <span class="case-id">CASE-04 <span class="case-kind">// Coursework</span></span>
+        <span class="case-title">CVE Write-Ups - The Big Ones from 2021</span>
+        <span class="case-summary">Log4Shell, ProxyShell, ProxyLogon, and a Confluence RCE, plus a review of risky open ports.</span>
+        <span class="case-more">Read the write-up ›</span>
+      </a>
+      <a class="case-card" href="case-03.html" data-kind="course">
+        <span class="case-id">CASE-03 <span class="case-kind">// Coursework</span></span>
+        <span class="case-title">Incident Response Simulation - Playing the CTO</span>
+        <span class="case-summary">Led the response to a simulated incident, steering by evidence over hunches, and scored 19 of 19 on critical information.</span>
+        <span class="case-more">Read the write-up ›</span>
+      </a>
+      <a class="case-card" href="case-02.html" data-kind="course">
+        <span class="case-id">CASE-02 <span class="case-kind">// Coursework</span></span>
+        <span class="case-title">Practice in Security - Hardened LAMP Environment</span>
         <span class="case-summary">Built a LAMP stack, attacked it from Kali Linux, then hardened it against OWASP Top 10, DISA STIG, and NIST SP 800-53.</span>
+        <span class="case-more">Read the write-up ›</span>
+      </a>
+      <a class="case-card" href="case-01.html" data-kind="course">
+        <span class="case-id">CASE-01 <span class="case-kind">// Coursework</span></span>
+        <span class="case-title">Project Proposal - Connected Outdoor Urgent Care Rooms</span>
+        <span class="case-summary">An $800K, 30-week plan to bring Wi-Fi and safe airflow to outdoor patient rooms during COVID.</span>
         <span class="case-more">Read the write-up ›</span>
       </a>
     </div>
@@ -80,7 +142,7 @@
 </main>
 
 <footer>
-  <div class="wrap">M<a href="auth.html" class="ghost-link">u</a>hammad Khas — updated <span class="year">2026</span></div>
+  <div class="wrap">M<a href="auth.html" class="ghost-link">u</a>hammad Khas - updated <span class="year">2026</span></div>
 </footer>
 
 <script src="site.js"></script>

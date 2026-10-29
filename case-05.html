@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Future Proofing - Muhammad Khas</title>
+<script>document.documentElement.classList.add('js');</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="scan"></div>
+
+<nav>
+  <div class="wrap">
+    <a class="nav-id" href="index.html">M.KHAS<span class="cursor">&nbsp;</span></a>
+    <div class="tabs" id="tabs">
+      <a href="index.html">About</a>
+      <a href="journey.html">Journey</a>
+      <a href="projects.html" aria-current="page">Projects</a>
+      <a href="contact.html">Contact</a>
+      <div class="tab-indicator" id="tab-indicator"></div>
+    </div>
+  </div>
+</nav>
+
+<main>
+<section class="page-section">
+  <div class="wrap">
+    <article class="post">
+      <a class="post-back" href="projects.html">‹ All projects</a>
+      <div class="section-head">
+        <h2>Future Proofing - Modernizing a Small CPA Firm</h2>
+        <span class="section-tag">CASE-05</span>
+      </div>
+      <p class="post-meta">Capstone · George Mason University · Spring 2023 · 6-person team</p>
+      <div class="post-body">
+        <h3 class="post-head">The client</h3>
+        <p>Our client was a small CPA firm: three people, part-time, doing tax and accounting work. Their workflow was holding them back:</p>
+        <ul>
+          <li>QuickBooks Desktop ran on just one laptop, so everyone else was stuck with the more limited QuickBooks Online.</li>
+          <li>Each person had a personal OneDrive that was backed up by hand.</li>
+          <li>Appointments were booked with pen and paper through a back-and-forth with each customer.</li>
+          <li>Payments came in through peer-to-peer apps, which is insecure and unprofessional.</li>
+        </ul>
+        <h3 class="post-head">What we built</h3>
+        <ul>
+          <li><strong>AWS WorkSpaces</strong> with QuickBooks Desktop installed, so any employee can use it from any laptop. Backups run automatically through OneDrive on the workspace.</li>
+          <li><strong>An Amazon Lex chatbot</strong> that checks availability, books appointments, and emails confirmations to both the CPA and the customer.</li>
+          <li><strong>Stripe</strong> for invoicing and payments, replacing the peer-to-peer apps.</li>
+          <li><strong>A website</strong> for the business, its staff and services, with an inquiry form.</li>
+        </ul>
+        <p>The constraint that shaped everything: the client has no IT team, so solutions had to be simple, low-risk, and elastic for tax season. We first planned S3 for backups but switched to OneDrive when the client wasn't comfortable maintaining S3. For security, we deliberately kept Stripe and the chatbot disconnected so payment links could never be exposed publicly.</p>
+        <h3 class="post-head">My part</h3>
+        <p>Our team lead ran the project. I was the <strong>main point of contact with the client</strong>: I gathered what they needed, translated it for the team, and carried our technical decisions back in terms they could act on.</p>
+        <p>I also analyzed and presented the scheduling and payments processes (how they worked, what they cost in time, and why we replaced them), and worked with a teammate to get the AWS WorkSpaces solution working.</p>
+        <h3 class="post-head">Result</h3>
+        <p>The client accepted every solution, along with training videos and documentation. We estimated about <strong>30 hours a year</strong> of CPA time saved and a net gain of roughly <strong>$3,650 a year (about 16%)</strong> for the business.</p>
+      </div>
+    </article>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">M<a href="auth.html" class="ghost-link">u</a>hammad Khas - updated <span class="year">2026</span></div>
+</footer>
+
+<script src="site.js"></script>
+
+</body>
+</html>

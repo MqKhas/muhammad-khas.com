@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Triage metrics reform — Muhammad Khas</title>
+<title>Practice in Security - Muhammad Khas</title>
 <script>document.documentElement.classList.add('js');</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -32,17 +32,29 @@
     <article class="post">
       <a class="post-back" href="projects.html">‹ All projects</a>
       <div class="section-head">
-        <h2>Triage metrics &amp; collaboration reform</h2>
+        <h2>Practice in Security - Hardened LAMP Environment</h2>
         <span class="section-tag">CASE-02</span>
       </div>
-      <p class="post-meta">Arctic Wolf · Triage</p>
+      <p class="post-meta">Lab project I led · George Mason University (IT 369) · Spring 2022</p>
       <div class="post-body">
-        <h3 class="sub-head">The problem</h3>
-        <p>The triage dashboard tracked individual performance hour by hour. Helping a teammate with their alerts hurt your own numbers, so the metric was quietly discouraging analysts from working together, which is the opposite of what you want in a security operations team.</p>
-        <h3 class="sub-head">What I did</h3>
-        <p>I raised it with Tier 1 management and proposed changing how we measure, so the numbers reward collaboration and quality instead of penalizing them.</p>
-        <h3 class="sub-head">Result</h3>
-        <p>The metric itself couldn't be changed; I was told the option didn't exist. So I changed the <strong>procedure</strong> instead. Now the engineer starting the next hour rolls their time window back one hour and picks up any loose events the previous engineer didn't get to. Nothing falls through the gap between hours, and nobody is penalized for it.</p>
+        <h3 class="post-head">The setup</h3>
+        <p>I built a LAMP stack (Linux, Apache, MySQL, PHP) in an Ubuntu VM, then attacked it from a Kali Linux VM to see what an attacker could learn, and hardened it afterward using OWASP Top 10, DISA STIG, and NIST SP 800-53 controls.</p>
+        <h3 class="post-head">Recon from Kali</h3>
+        <ul>
+          <li><strong>Nmap:</strong> found the hosts on the network, and OS detection on the LAMP VM showed ports 22 and 80 open, plus the MAC address and Linux version. Those are useful for spoofing or for looking up known vulnerabilities.</li>
+          <li><strong>Wireshark:</strong> captured the VM's DHCP request and acknowledgement as it joined the network.</li>
+          <li><strong>Nikto (via Legion):</strong> revealed the Apache version and OS, missing anti-clickjacking and X-Content-Type-Options headers, and a server that answered junk HTTP methods.</li>
+          <li><strong>Skipfish:</strong> crawled the site and flagged 74 higher-risk findings, along with hidden files and directories.</li>
+        </ul>
+        <h3 class="post-head">Hardening</h3>
+        <p>I worked through DISA STIG rules for Ubuntu (v1r2) and the database, checking each one, fixing it, and re-checking:</p>
+        <ul>
+          <li>Required at least one uppercase letter, lowercase letter, and number in passwords (<code>ucredit</code>, <code>lcredit</code>, <code>dcredit</code> set to -1 in <code>/etc/security/pwquality.conf</code>).</li>
+          <li>Required at least 8 characters to change when a password is changed (<code>difok=8</code>).</li>
+          <li>Limited the database to 2 concurrent sessions per user (<code>max_user_connections=2</code>).</li>
+        </ul>
+        <h3 class="post-head">What I took away</h3>
+        <p>Tightening a password rule doesn't protect existing accounts until everyone resets their password. And after testing with password-cracking simulators, I found <strong>length matters more than complexity</strong>. A long passphrase with a mix of characters beats a short complex password, so a high minimum length should come with the complexity rules.</p>
       </div>
     </article>
   </div>
@@ -50,7 +62,7 @@
 </main>
 
 <footer>
-  <div class="wrap">M<a href="auth.html" class="ghost-link">u</a>hammad Khas — updated <span class="year">2026</span></div>
+  <div class="wrap">M<a href="auth.html" class="ghost-link">u</a>hammad Khas - updated <span class="year">2026</span></div>
 </footer>
 
 <script src="site.js"></script>

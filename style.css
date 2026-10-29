@@ -143,9 +143,9 @@ nav .wrap{
 .js .timeline-role,
 .js .timeline-org,
 .js .timeline-story,
-.js .case-id,
-.js .case-title,
+.js .case-card,
 .js .contact-buttons a,
+.js .quest,
 .js footer .wrap{
   opacity:0;
 }
@@ -164,9 +164,9 @@ nav .wrap{
   .js .timeline-role,
   .js .timeline-org,
   .js .timeline-story,
-  .js .case-id,
-  .js .case-title,
+  .js .case-card,
   .js .contact-buttons a,
+  .js .quest,
   .js footer .wrap{
     opacity:1 !important;
   }
@@ -517,8 +517,78 @@ h2{
 .post-body ul{margin:0 0 16px 20px;}
 .post-body li{margin-bottom:6px;}
 .post-body strong{color:var(--ink); font-weight:500;}
-.post-body .sub-head{margin-top:40px;}
-.post-body .sub-head:first-child{margin-top:0;}
+/* post headings look like .sub-head but aren't typed, so they
+   appear together with the paragraphs under them */
+.post-head{
+  font-family:'IBM Plex Mono', monospace;
+  font-size:13px;
+  font-weight:500;
+  color:var(--ink-faint);
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  margin:40px 0 16px;
+}
+.post-head:first-child{margin-top:0;}
+.post-body{animation:post-in 0.6s ease both;}
+@keyframes post-in{from{opacity:0; transform:translateY(8px);}}
+@media (prefers-reduced-motion: reduce){ .post-body{animation:none;} }
+.post-body table{width:100%; border-collapse:collapse; margin:0 0 16px; font-size:14.5px;}
+.post-body th, .post-body td{text-align:left; padding:8px 12px 8px 0; border-bottom:1px solid rgba(255,0,255,0.15); vertical-align:top;}
+.post-body th{color:var(--ink); font-weight:500;}
+.post-body img{max-width:160px; display:block; margin:0 0 24px;}
+
+/* project type after the case number, e.g. "CASE-08 // WORK" */
+.case-kind{
+  color:var(--ink-faint);
+  text-transform:uppercase;
+  letter-spacing:0.06em;
+  margin-left:4px;
+}
+
+/* a live tool embedded in a post, e.g. Header Forensics */
+.post-embed{margin:0 0 12px; border:1px solid var(--line-glow); background:#000;}
+.post-embed iframe{display:block; width:100%; height:780px; border:0;}
+.post-embed-link{font-family:'IBM Plex Mono', monospace; font-size:12.5px; margin-bottom:16px;}
+/* full guide tucked into a dropdown */
+.post-body details{border:1px solid var(--line-glow); padding:14px 18px; margin:0 0 16px;}
+.post-body details summary{cursor:pointer; font-family:'IBM Plex Mono', monospace; font-size:13px; color:var(--accent);}
+.post-body details[open] summary{margin-bottom:12px;}
+.post-body details h4{color:var(--ink); font-size:15px; font-weight:500; margin:20px 0 8px;}
+.post-body details ol{margin:0 0 12px 20px;}
+.post-body details li{margin-bottom:4px;}
+
+/* filter buttons above the project grid */
+.case-filter{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:24px;}
+.case-filter button{
+  font-family:'IBM Plex Mono', monospace;
+  font-size:12px;
+  color:var(--ink-dim);
+  background:transparent;
+  border:1px solid var(--ink-faint);
+  padding:6px 14px;
+  cursor:pointer;
+}
+.case-filter button:hover{color:var(--ink);}
+.case-filter button[aria-pressed="true"]{color:#000; background:var(--accent); border-color:var(--accent);}
+.case-card[hidden]{display:none;}
+
+/* ---------- Side quest (Contact page) ---------- */
+.quest{
+  margin-top:56px;
+  max-width:640px;
+  padding:24px;
+  border:1px dashed var(--accent-soft);
+  background:rgba(10,10,10,0.85);
+  font-family:'IBM Plex Mono', monospace;
+  font-size:13.5px;
+  color:var(--ink-dim);
+}
+.quest-tag{color:var(--accent); margin-bottom:12px; letter-spacing:0.06em;}
+.quest p{margin-bottom:14px;}
+.quest details{border-top:1px solid rgba(255,0,255,0.15); padding:10px 0;}
+.quest summary{cursor:pointer; color:var(--ink);}
+.quest summary:hover{color:var(--accent);}
+.quest details p{margin:8px 0 0;}
 .post-body code{font-family:'IBM Plex Mono', monospace; font-size:0.88em; color:var(--ink);}
 .post .section-head{gap:20px;}
 

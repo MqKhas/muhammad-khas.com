@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hardened LAMP environment — Muhammad Khas</title>
+<title>Project Proposal - Muhammad Khas</title>
 <script>document.documentElement.classList.add('js');</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -32,29 +32,15 @@
     <article class="post">
       <a class="post-back" href="projects.html">‹ All projects</a>
       <div class="section-head">
-        <h2>Practice in Security — hardened LAMP environment</h2>
+        <h2>Project Proposal - Connected Outdoor Urgent Care Rooms</h2>
         <span class="section-tag">CASE-01</span>
       </div>
-      <p class="post-meta">Lab project · George Mason University (IT 369)</p>
+      <p class="post-meta">Coursework · George Mason University (IT 343, IT Project Management) · Spring 2022</p>
       <div class="post-body">
-        <h3 class="sub-head">The setup</h3>
-        <p>I built a LAMP stack (Linux, Apache, MySQL, PHP) in an Ubuntu VM, then attacked it from a Kali Linux VM to see what an attacker could learn, and hardened it afterward using OWASP Top 10, DISA STIG, and NIST SP 800-53 controls.</p>
-        <h3 class="sub-head">Recon from Kali</h3>
-        <ul>
-          <li><strong>Nmap:</strong> found the hosts on the network, and OS detection on the LAMP VM showed ports 22 and 80 open, plus the MAC address and Linux version. Those are useful for spoofing or for looking up known vulnerabilities.</li>
-          <li><strong>Wireshark:</strong> captured the VM's DHCP request and acknowledgement as it joined the network.</li>
-          <li><strong>Nikto (via Legion):</strong> revealed the Apache version and OS, missing anti-clickjacking and X-Content-Type-Options headers, and a server that answered junk HTTP methods.</li>
-          <li><strong>Skipfish:</strong> crawled the site and flagged 74 higher-risk findings, along with hidden files and directories.</li>
-        </ul>
-        <h3 class="sub-head">Hardening</h3>
-        <p>I worked through DISA STIG rules for Ubuntu (v1r2) and the database, checking each one, fixing it, and re-checking:</p>
-        <ul>
-          <li>Required at least one uppercase letter, lowercase letter, and number in passwords (<code>ucredit</code>, <code>lcredit</code>, <code>dcredit</code> set to -1 in <code>/etc/security/pwquality.conf</code>).</li>
-          <li>Required at least 8 characters to change when a password is changed (<code>difok=8</code>).</li>
-          <li>Limited the database to 2 concurrent sessions per user (<code>max_user_connections=2</code>).</li>
-        </ul>
-        <h3 class="sub-head">What I took away</h3>
-        <p>Tightening a password rule doesn't protect existing accounts until everyone resets their password. And after testing with password-cracking simulators, I found <strong>length matters more than complexity</strong>. A long passphrase with a mix of characters beats a short complex password, so a high minimum length should come with the complexity rules.</p>
+        <h3 class="post-head">The problem</h3>
+        <p>During COVID, a Northern Virginia hospital network wanted to see urgent care patients outdoors, but there was no Wi-Fi outside its offices, so staff couldn't update medical records. The outdoor rooms also needed good airflow and had to be able to handle emergencies.</p>
+        <h3 class="post-head">The plan</h3>
+        <p>Survey each center's size and network capabilities, then design an architecture that fits the existing network. Draw up schematics so the build and IT teams could repeat the setup efficiently, then order the components and build to a schedule. I budgeted the project at <strong>$800,000</strong> over a <strong>30-week</strong> timeline, with a schedule and cost plan in Microsoft Project.</p>
       </div>
     </article>
   </div>
@@ -62,7 +48,7 @@
 </main>
 
 <footer>
-  <div class="wrap">M<a href="auth.html" class="ghost-link">u</a>hammad Khas — updated <span class="year">2026</span></div>
+  <div class="wrap">M<a href="auth.html" class="ghost-link">u</a>hammad Khas - updated <span class="year">2026</span></div>
 </footer>
 
 <script src="site.js"></script>

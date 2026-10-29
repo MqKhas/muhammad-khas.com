@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spam Cleanup - Muhammad Khas</title>
+<script>document.documentElement.classList.add('js');</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="scan"></div>
+
+<nav>
+  <div class="wrap">
+    <a class="nav-id" href="index.html">M.KHAS<span class="cursor">&nbsp;</span></a>
+    <div class="tabs" id="tabs">
+      <a href="index.html">About</a>
+      <a href="journey.html">Journey</a>
+      <a href="projects.html" aria-current="page">Projects</a>
+      <a href="contact.html">Contact</a>
+      <div class="tab-indicator" id="tab-indicator"></div>
+    </div>
+  </div>
+</nav>
+
+<main>
+<section class="page-section">
+  <div class="wrap">
+    <article class="post">
+      <a class="post-back" href="projects.html">‹ All projects</a>
+      <div class="section-head">
+        <h2>Spam Cleanup - A Gmail and Outlook Setup Guide</h2>
+        <span class="section-tag">CASE-11</span>
+      </div>
+      <p class="post-meta">Personal project · October 2026</p>
+      <div class="post-body">
+        <h3 class="post-head">The idea</h3>
+        <p>Both Gmail and Outlook can clean up junk mail on their own forever, with no scripts and no scheduled jobs, if you set them up once. The trick is not deleting anything you actually want, so the guide uses three tiers:</p>
+        <ul>
+          <li><strong>Known junk:</strong> senders and domains you've already identified are deleted and blocked immediately.</li>
+          <li><strong>Promotions:</strong> anything classified as an ad gets a 7-day grace period so you can glance at it, then it's deleted automatically.</li>
+          <li><strong>Unsure:</strong> new senders that look promotional go to a Review folder, and you promote them to tier one or two after a spot-check.</li>
+        </ul>
+        <h3 class="post-head">Gmail</h3>
+        <p>A filter on <code>category:promotions older_than:7d</code> with <strong>Delete it</strong> handles tier two using Gmail's own classifier. Tier one is a filter on specific senders plus <strong>Block</strong>, and tier three is a <strong>Review</strong> label.</p>
+        <h3 class="post-head">Outlook</h3>
+        <p><strong>Sweep</strong> clears a sender's history and keeps them out going forward. Rules handle the rest, starting narrow with specific senders, because keyword rules are blunter than Gmail's classifier. The Blocked senders list sends known junk straight to the Junk folder.</p>
+        <details>
+          <summary>› Read the full step-by-step guide</summary>
+          <h4>Gmail: one-time cleanup</h4>
+          <ol>
+            <li>Search for <code>category:promotions</code>.</li>
+            <li>Select all, then "Select all conversations that match this search".</li>
+            <li>Delete in bulk.</li>
+            <li>Repeat with <code>category:promotions older_than:30d in:anywhere</code> to catch anything outside the inbox tab.</li>
+          </ol>
+          <h4>Gmail: automatic deletion (tier 2)</h4>
+          <ol>
+            <li>Settings › <strong>See all settings</strong> › <strong>Filters and Blocked Addresses</strong> › <strong>Create a new filter</strong>.</li>
+            <li>In "Has the words", enter <code>category:promotions older_than:7d</code>.</li>
+            <li>Click <strong>Create filter</strong>, check <strong>Delete it</strong> (and optionally <strong>Skip the Inbox</strong>), and save.</li>
+          </ol>
+          <h4>Gmail: known junk (tier 1)</h4>
+          <ol>
+            <li>Create another filter with <strong>From</strong> set to the addresses or domains, e.g. <code>spammer1.com OR spammer2.com</code>, and check <strong>Delete it</strong>.</li>
+            <li>To block formally, open one email from the sender › three-dot menu › <strong>Block</strong>.</li>
+          </ol>
+          <h4>Gmail: unsure senders (tier 3)</h4>
+          <ol>
+            <li>Create a label called <strong>Review</strong>.</li>
+            <li>Create a filter for the keywords you're unsure about, with <strong>Apply the label: Review</strong> and <strong>Skip the Inbox</strong>.</li>
+            <li>Check it periodically and move confirmed junk senders to your tier 1 filter.</li>
+          </ol>
+          <h4>Outlook: one-time cleanup with Sweep</h4>
+          <ol>
+            <li>Right-click an email from the sender › <strong>Sweep</strong>.</li>
+            <li>Choose <strong>Delete all from [sender]</strong> and/or <strong>Always move messages from [sender] to Deleted Items</strong>.</li>
+            <li>Repeat for each known spam sender.</li>
+          </ol>
+          <h4>Outlook: automatic deletion with Rules</h4>
+          <ol>
+            <li>Settings › <strong>Mail</strong> › <strong>Rules</strong> › <strong>Add new rule</strong>.</li>
+            <li>Set a condition: <strong>From</strong> specific domains (safest), or <strong>Subject includes</strong> phrases like <code>% off</code>, <code>limited time</code>, <code>exclusive offer</code>.</li>
+            <li>Set the action to <strong>Delete</strong> and save. Start narrow and widen carefully.</li>
+          </ol>
+          <h4>Outlook: blocking and review</h4>
+          <ol>
+            <li>Settings › <strong>Mail</strong> › <strong>Junk email</strong> › add addresses or domains under <strong>Blocked senders and domains</strong>.</li>
+            <li>For unsure senders, create a <strong>Review</strong> folder and a rule that moves your looser keyword set there instead of deleting it. Check it weekly.</li>
+          </ol>
+        </details>
+        <h3 class="post-head">A note for work accounts</h3>
+        <p>On a managed Microsoft 365 tenant, an admin policy may restrict auto-delete rules for retention or compliance reasons. If a rule silently doesn't save, that's usually why, and it's a question for IT.</p>
+      </div>
+    </article>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">M<a href="auth.html" class="ghost-link">u</a>hammad Khas - updated <span class="year">2026</span></div>
+</footer>
+
+<script src="site.js"></script>
+
+</body>
+</html>

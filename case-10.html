@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Incident Ledger - Muhammad Khas</title>
+<script>document.documentElement.classList.add('js');</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="scan"></div>
+
+<nav>
+  <div class="wrap">
+    <a class="nav-id" href="index.html">M.KHAS<span class="cursor">&nbsp;</span></a>
+    <div class="tabs" id="tabs">
+      <a href="index.html">About</a>
+      <a href="journey.html">Journey</a>
+      <a href="projects.html" aria-current="page">Projects</a>
+      <a href="contact.html">Contact</a>
+      <div class="tab-indicator" id="tab-indicator"></div>
+    </div>
+  </div>
+</nav>
+
+<main>
+<section class="page-section">
+  <div class="wrap">
+    <article class="post">
+      <a class="post-back" href="projects.html">‹ All projects</a>
+      <div class="section-head">
+        <h2>Incident Ledger - An Investigation Tracker</h2>
+        <span class="section-tag">CASE-10</span>
+      </div>
+      <p class="post-meta">Personal project · October 2026</p>
+      <div class="post-body">
+        <h3 class="post-head">Why</h3>
+        <p>During an investigation, the details pile up fast: timestamps, hosts, accounts, IPs, hashes, and where each piece of evidence came from. I wanted one place to keep a case organized instead of scattered notes.</p>
+        <h3 class="post-head">What it does</h3>
+        <ul>
+          <li><strong>Cases:</strong> each one gets a case code, an incident type (ransomware, phishing, business email compromise, insider threat, and more), a severity from info to critical, and a status.</li>
+          <li><strong>Response phases:</strong> follows the incident response lifecycle: detection and analysis, containment, eradication, recovery, and post-incident review.</li>
+          <li><strong>Timeline:</strong> events with their own severity, searchable and filterable.</li>
+          <li><strong>Entities:</strong> hosts, user accounts, IPs, domains, file hashes, malware, network assets, and external parties, each tagged so they're easy to scan.</li>
+          <li><strong>Evidence:</strong> a log of what was collected (log excerpts, memory dumps, disk images, network captures, emails, and so on).</li>
+          <li><strong>Notes and export:</strong> free-form notes that save automatically, plus an export of the whole case.</li>
+        </ul>
+        <h3 class="post-head">Try it</h3>
+        <p>Start a case and add a few events, entities, and evidence. Everything is saved only in your own browser.</p>
+        <div class="post-embed"><iframe src="incident-ledger.html" title="Incident Ledger tool" loading="lazy"></iframe></div>
+        <p class="post-embed-link"><a href="incident-ledger.html" target="_blank" rel="noopener">Open it full screen ›</a></p>
+      </div>
+    </article>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">M<a href="auth.html" class="ghost-link">u</a>hammad Khas - updated <span class="year">2026</span></div>
+</footer>
+
+<script src="site.js"></script>
+
+</body>
+</html>

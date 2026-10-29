@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Khas Tracker - Muhammad Khas</title>
+<script>document.documentElement.classList.add('js');</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="scan"></div>
+
+<nav>
+  <div class="wrap">
+    <a class="nav-id" href="index.html">M.KHAS<span class="cursor">&nbsp;</span></a>
+    <div class="tabs" id="tabs">
+      <a href="index.html">About</a>
+      <a href="journey.html">Journey</a>
+      <a href="projects.html" aria-current="page">Projects</a>
+      <a href="contact.html">Contact</a>
+      <div class="tab-indicator" id="tab-indicator"></div>
+    </div>
+  </div>
+</nav>
+
+<main>
+<section class="page-section">
+  <div class="wrap">
+    <article class="post">
+      <a class="post-back" href="projects.html">‹ All projects</a>
+      <div class="section-head">
+        <h2>Khas Tracker - A Private, Encrypted Life Tracker</h2>
+        <span class="section-tag">CASE-12</span>
+      </div>
+      <p class="post-meta">Personal project · October 2026 · Built with Claude Code</p>
+      <div class="post-body">
+        <p><strong>Try the demo:</strong> <a href="https://khas.tracker.muhammad-khas.com" target="_blank" rel="noopener noreferrer">khas.tracker.muhammad-khas.com</a>. Tap <strong>Try the demo</strong> on the sign-in screen. It runs on about 400 days of made-up data that never leaves your browser. Real accounts are invite-only.</p>
+
+        <h3 class="post-head">Why I built it</h3>
+        <p>I wanted one app for everything I try to keep up with: home and relationship check-ins, wellbeing, make-up (qadha) prayers and fasts, food, training, weight and blood pressure, and goals. Existing apps each cover a slice, and almost all of them keep your data in plain text on someone else's server. So I set three rules first:</p>
+        <ul>
+          <li><strong>Private by design.</strong> Not "we promise not to look." The server should be <em>unable</em> to look.</li>
+          <li><strong>Cheap to run.</strong> Pay for what I use, with alarms if something misbehaves.</li>
+          <li><strong>Editable by anyone.</strong> Every section optional; every list, color, and program changeable.</li>
+        </ul>
+        <p>Up front: I'm not a developer. I built this by describing what I wanted to Claude Code, testing what came back, and pushing back until it was right. The decisions were mine; the typing mostly wasn't.</p>
+
+        <h3 class="post-head">The security model</h3>
+        <ul>
+          <li>Everything is <strong>encrypted on the phone</strong> before it's sent anywhere, with AES-256-GCM and a random 256-bit data key. Each record is bound to its user and its own name, so records can't be swapped between accounts or slots.</li>
+          <li>The data key is wrapped twice: once by your passphrase (PBKDF2-SHA256, 600,000 iterations) and once by a recovery code. Lose both and the data is gone. Nobody can recover it, including me and AWS.</li>
+          <li>Keys in the browser are non-extractable, and the app auto-locks when idle.</li>
+          <li>Accounts are invite-only, an authenticator-app code (TOTP, no SMS) is mandatory, and there are no third-party scripts or trackers, enforced by a strict Content Security Policy.</li>
+          <li>The API takes your identity only from the verified sign-in token, never from the request. Automated tests check that before every deploy.</li>
+        </ul>
+        <p>As the admin, I can see an account's email and when it signed in. I can't see anything inside it.</p>
+
+        <h3 class="post-head">What runs on AWS</h3>
+        <p>Everything is defined as code with the AWS CDK (TypeScript) in one stack:</p>
+        <table>
+          <tr><th>Piece</th><th>What it does</th></tr>
+          <tr><td>S3 + CloudFront</td><td>Private bucket for the app files, behind a CDN that also forwards <code>/api/*</code> and adds security headers.</td></tr>
+          <tr><td>Route 53 + ACM</td><td>The domain and its HTTPS certificate.</td></tr>
+          <tr><td>Cognito</td><td>Invite-only sign-in with required authenticator codes.</td></tr>
+          <tr><td>API Gateway + Lambda</td><td>A tiny four-route sync API with a JWT check, throttled low so abuse can't run up the bill.</td></tr>
+          <tr><td>DynamoDB</td><td>Holds only encrypted blobs, with point-in-time recovery.</td></tr>
+          <tr><td>AWS Backup</td><td>Daily backups for 35 days, plus a copy in a second region for 3 years.</td></tr>
+          <tr><td>Budgets</td><td>Emails me if spending heads past a small monthly limit.</td></tr>
+          <tr><td>IAM + GitHub OIDC</td><td>GitHub deploys with short-lived tokens, so no AWS keys are stored in GitHub.</td></tr>
+        </table>
+        <p>The front end is plain HTML, CSS, and JavaScript, works offline, and syncs when there's a connection. Every push to <code>main</code> tests and deploys in about five minutes.</p>
+
+        <h3 class="post-head">How it got built</h3>
+        <p>I wrote a spec and built it in small phases, each in its own fresh session, testing each piece in a local demo mode that fakes sign-in and the API. Two lessons: <strong>build small and test each piece</strong>, and <strong>read every "done" report skeptically</strong>. A few sessions said features were tested when they hadn't actually been clicked through, so I started checking every tab myself.</p>
+
+        <h3 class="post-head">Hiccups worth sharing</h3>
+        <ul>
+          <li><strong>GitHub couldn't sign in to AWS.</strong> My OIDC trust rule allowed <code>owner/repo</code>, but GitHub identified the repo with ID numbers added. Fixed by accepting both forms, still locked to one repo's <code>main</code> branch.</li>
+          <li><strong>"Access denied" on Billing.</strong> I'd locked the account down properly (root MFA, admin user for daily work), but AWS hides billing from IAM users by default. One root sign-in to enable IAM billing access fixed it.</li>
+          <li><strong>A surprise load balancer bill.</strong> Elastic Load Balancing was my biggest cost, on an app that doesn't use one. The likely cause was a leftover from an old tutorial. Lesson: delete tutorial resources, and set a budget alarm on day one.</li>
+          <li><strong>A bug that ate my checkmarks.</strong> Default checklist items got new ids on every reload, so past ticks vanished. Defaults are now saved on first use.</li>
+        </ul>
+
+        <h3 class="post-head">What I'd do differently</h3>
+        <ul>
+          <li>Set up billing access and a budget before anything else.</li>
+          <li>Test on a real phone sooner.</li>
+          <li>Write the deploy guide as I go. It ended up being one of the most valuable parts of the project.</li>
+        </ul>
+      </div>
+    </article>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">M<a href="auth.html" class="ghost-link">u</a>hammad Khas - updated <span class="year">2026</span></div>
+</footer>
+
+<script src="site.js"></script>
+
+</body>
+</html>
